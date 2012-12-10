@@ -121,7 +121,9 @@ void SCsCodeEditor::highlightCurrentLine()
 void SCsCodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
      QPainter painter(mLineNumberArea);
-     painter.fillRect(event->rect(), Qt::lightGray);
+     QRect rect = event->rect();
+     rect.setBottomLeft( QPoint(30,100) );
+     painter.fillRect(rect, Qt::lightGray);
      QTextBlock block = firstVisibleBlock();
      int blockNumber = block.blockNumber();
      int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();

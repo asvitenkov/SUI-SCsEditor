@@ -4,6 +4,8 @@
 #include "scswindow.h"
 
 
+#include "scsparser/scsparserwrapper.h"
+
 int main(int argc, char *argv[])
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

@@ -7,6 +7,8 @@ TARGET        = SCsEditor
 OBJECTS_DIR = obj
 MOC_DIR = moc
 
+INCLUDEPATH += scsparser \
+    scsparser/include
 
 HEADERS += \
     scssyntaxhighlighter.h \
@@ -17,7 +19,10 @@ HEADERS += \
     scsabstracthighlightingrule.h \
     scscodeanalyzer.h \
     scscodecompleter.h \
-    scswindow.h
+    scswindow.h \
+    scsparser/scsparserwrapper.h \
+    scsparser/SCsParser.hpp \
+    scsparser/SCsLexer.hpp
     
 SOURCES += \
     scssyntaxhighlighter.cpp \
@@ -29,5 +34,8 @@ SOURCES += \
     scscodeanalyzer.cpp \
     scscodecompleter.cpp \
     main.cpp \
-    scswindow.cpp
+    scswindow.cpp \
+    scsparser/scsparserwrapper.cpp \
+    scsparser/SCsParser.cpp \
+    scsparser/SCsLexer.cpp
 
