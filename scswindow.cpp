@@ -36,10 +36,12 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 SCsWindow::SCsWindow(const QString& _windowTitle, QWidget *parent):
     QWidget(parent),
     mEditor(0),
+    mEditorWidget(0),
     mHighlighter(0),
     mIsSaved(false)
 {
-    mEditor = new SCsCodeEditor();
+    mEditorWidget = new SCsCodeEditorWidget();
+    mEditor = mEditorWidget->getCodeEditor();
     QFont font("Arial", 11);
     font.setStyleHint(QFont::Serif);
     mEditor->setFont(font);
@@ -48,7 +50,7 @@ SCsWindow::SCsWindow(const QString& _windowTitle, QWidget *parent):
 
     mHighlighter = new SCsSyntaxHighlighter(mEditor->document(), SCsHighlightingRulesPool::getInstance()->rules());
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(mEditor);
+    layout->addWidget(mEditorWidget);
     setLayout(layout);
 
     connect(mEditor, SIGNAL(textChanged()), this, SLOT(textChanged()));

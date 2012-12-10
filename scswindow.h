@@ -25,7 +25,7 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "scscodeeditor.h"
 #include "scssyntaxhighlighter.h"
-
+#include "scscodeeditorwidget.h"
 #include <QWidget>
 
 
@@ -62,6 +62,7 @@ public:
 
 private:
     SCsCodeEditor *mEditor;
+    SCsCodeEditorWidget *mEditorWidget;
     SCsSyntaxHighlighter *mHighlighter;
     bool mIsSaved;
 

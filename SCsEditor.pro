@@ -22,7 +22,8 @@ HEADERS += \
     scswindow.h \
     scsparser/scsparserwrapper.h \
     scsparser/SCsParser.hpp \
-    scsparser/SCsLexer.hpp
+    scsparser/SCsLexer.hpp \
+    scscodeeditorwidget.h
     
 SOURCES += \
     scssyntaxhighlighter.cpp \
@@ -37,5 +38,6 @@ SOURCES += \
     scswindow.cpp \
     scsparser/scsparserwrapper.cpp \
     scsparser/SCsParser.cpp \
-    scsparser/SCsLexer.cpp
+    scsparser/SCsLexer.cpp \
+    scscodeeditorwidget.cpp
 
