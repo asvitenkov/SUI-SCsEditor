@@ -41,3 +41,6 @@ SOURCES += \
     scsparser/SCsLexer.cpp \
     scscodeeditorwidget.cpp
 
+RESOURCES += \
+    media/scseditor.qrc
+
