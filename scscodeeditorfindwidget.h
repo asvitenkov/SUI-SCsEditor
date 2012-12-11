@@ -12,11 +12,13 @@ class SCsCodeEditorFindWidget : public QWidget
     Q_OBJECT
 public:
     SCsCodeEditorFindWidget(SCsCodeEditor *editor=0);
-    
-signals:
-    void find();
+
+protected:
+    void keyPressEvent(QKeyEvent *e);
     
 private:
+    void find();
+
     SCsCodeEditor* mEditor;
     QLineEdit *mSearchEdit;
     QCheckBox *mIsCaseSensitive;

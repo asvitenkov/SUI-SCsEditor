@@ -43,3 +43,6 @@ SOURCES += \
     scscodeeditorwidget.cpp \
     scscodeeditorfindwidget.cpp
 
+RESOURCES += \
+    media/scseditor.qrc
+

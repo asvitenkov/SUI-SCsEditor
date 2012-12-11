@@ -21,9 +21,9 @@ public:
     ~SCsParserError();
     SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
     SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
-    ErrorType getType(){ return mType; }
-    int getLine() { return mLine; }
-    int getPositionInLine() { return  mPositionInLine; }
+    ErrorType type(){ return mType; }
+    int line() { return mLine; }
+    int positionInLine() { return  mPositionInLine; }
 
 private:
     ErrorType mType;
