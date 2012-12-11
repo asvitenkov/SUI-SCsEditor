@@ -15,8 +15,11 @@ signals:
     
 public slots:
 
+private slots:
+    void onCheckGrammarShortcut();
 private:
     SCsCodeEditor *mEditor;
+//    SCsLineErrorArea *mLineErrorArea;
     
 };
 

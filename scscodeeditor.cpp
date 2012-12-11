@@ -30,6 +30,9 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include "scscodeanalyzer.h"
 #include "scscodecompleter.h"
 
+#define SPACE_FOR_ERROR_LABEL 20
+#define ICON_ERROR_NAME QString("error.png")
+
 SCsCodeEditor::SCsCodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     mLineNumberArea = new SCsLineNumberArea(this);
@@ -40,6 +43,8 @@ SCsCodeEditor::SCsCodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     mCompleter->setCompletionMode(QCompleter::PopupCompletion);
     mCompleter->setCaseSensitivity(Qt::CaseSensitive);
     mCompleter->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+
+    mErrorPixmap = QPixmap(":/media/icons/" + ICON_ERROR_NAME).scaledToHeight(15);
 
     connect(mCompleter, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
 
@@ -71,7 +76,7 @@ int SCsCodeEditor::lineNumberAreaWidth()
 
     int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
 
-    return space;
+    return space + SPACE_FOR_ERROR_LABEL;
 }
 
 void SCsCodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -121,9 +126,7 @@ void SCsCodeEditor::highlightCurrentLine()
 void SCsCodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
      QPainter painter(mLineNumberArea);
-     QRect rect = event->rect();
-     rect.setBottomLeft( QPoint(30,100) );
-     painter.fillRect(rect, Qt::lightGray);
+     painter.fillRect(event->rect(), Qt::lightGray);
      QTextBlock block = firstVisibleBlock();
      int blockNumber = block.blockNumber();
      int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
@@ -136,6 +139,9 @@ void SCsCodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
              painter.setPen(Qt::black);
              painter.drawText(0, top, mLineNumberArea->width(), fontMetrics().height(),
                               Qt::AlignRight, number);
+             if(isLineWithError(blockNumber+1))
+                 painter.drawPixmap(4,top+2,mErrorPixmap);
+//             painter.drawEllipse(QRectF(5,top+2,10,10));
          }
 
          block = block.next();
@@ -232,4 +238,15 @@ void SCsCodeEditor::updateAnalyzer()
 
     mAnalyzer->ignoreUpdate(currentWord);
     mAnalyzer->update(toPlainText(), completerModel);
+}
+
+bool SCsCodeEditor::isLineWithError(int line)
+{
+    return mErrorLines.contains(line);
+}
+
+
+void SCsCodeEditor::setErrorsLines(QVector<int> &lines)
+{
+    mErrorLines = lines;
 }

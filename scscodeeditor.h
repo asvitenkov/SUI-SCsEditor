@@ -25,6 +25,8 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QPlainTextEdit>
 #include <QModelIndex>
+#include <QGridLayout>
+#include <QLabel>
 
 class SCsCodeAnalyzer;
 class SCsCodeCompleter;
@@ -38,10 +40,12 @@ public:
     int lineNumberAreaWidth();
 
     void setDocumentPath(const QString &path);
+    void setErrorsLines(QVector<int> &lines);
 
 protected:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *e);
+    inline bool isLineWithError(int line);
 
     QString textUnderCursor();
 
@@ -56,7 +60,8 @@ private:
     QWidget *mLineNumberArea;
     SCsCodeAnalyzer *mAnalyzer;
     SCsCodeCompleter *mCompleter;
-
+    QVector<int> mErrorLines;
+    QPixmap mErrorPixmap;
 };
 
 class SCsLineNumberArea : public QWidget

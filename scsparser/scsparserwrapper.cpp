@@ -82,7 +82,7 @@ bool SCsParserWrapper::parseData()
 
     mClearErrors = true;
 
-    return (mErrorList.size()!=0);
+    return (mErrorList.empty());
 
 }
 
