@@ -2,6 +2,7 @@
 #include <QTextCodec>
 
 #include "scswindow.h"
+#include "scscodeeditorfindwidget.h"
 
 
 #include "scsparser/scsparserwrapper.h"

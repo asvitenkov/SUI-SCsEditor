@@ -29,12 +29,14 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include "scscodeanalyzer.h"
 #include "scscodecompleter.h"
+#include "scscodeeditorfindwidget.h"
 
 SCsCodeEditor::SCsCodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     mLineNumberArea = new SCsLineNumberArea(this);
     mAnalyzer = new SCsCodeAnalyzer(this);
     mCompleter = new SCsCodeCompleter(this);
+    mFinder = new SCsCodeEditorFindWidget(this);
 
     mCompleter->setWidget(this);
     mCompleter->setCompletionMode(QCompleter::PopupCompletion);
@@ -162,6 +164,11 @@ void SCsCodeEditor::keyPressEvent(QKeyEvent *e)
         return;
     }
 
+    if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
+    {
+        mFinder->show();
+    }
+
     if (mCompleter->popup()->isVisible())
     {
         switch (e->key())
@@ -232,4 +239,9 @@ void SCsCodeEditor::updateAnalyzer()
 
     mAnalyzer->ignoreUpdate(currentWord);
     mAnalyzer->update(toPlainText(), completerModel);
+}
+
+SCsCodeEditorFindWidget* SCsCodeEditor::getFindWidget()
+{
+    return mFinder;
 }

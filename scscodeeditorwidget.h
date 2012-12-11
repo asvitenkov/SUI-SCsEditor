@@ -3,7 +3,8 @@
 
 #include <QWidget>
 
-#include "scscodeeditor.h"
+class SCsCodeEditor;
+class SCsCodeEditorFindWidget;
 
 class SCsCodeEditorWidget : public QWidget
 {
@@ -17,7 +18,7 @@ public slots:
 
 private:
     SCsCodeEditor *mEditor;
-    
+    SCsCodeEditorFindWidget *mEditorFindWidget;
 };
 
 #endif // SCSCODEEDITORWIDGET_H

@@ -28,6 +28,7 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 
 class SCsCodeAnalyzer;
 class SCsCodeCompleter;
+class SCsCodeEditorFindWidget;
 
 class SCsCodeEditor : public QPlainTextEdit
 {
@@ -38,6 +39,8 @@ public:
     int lineNumberAreaWidth();
 
     void setDocumentPath(const QString &path);
+
+    SCsCodeEditorFindWidget* getFindWidget();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -51,11 +54,13 @@ private slots:
     void updateLineNumberArea(const QRect &, int);
     void insertCompletion(QModelIndex index);
     void updateAnalyzer();
+//    void find(const QString &exp, QTextDocument::FindFlags options);
 
 private:
     QWidget *mLineNumberArea;
     SCsCodeAnalyzer *mAnalyzer;
     SCsCodeCompleter *mCompleter;
+    SCsCodeEditorFindWidget *mFinder;
 
 };
 
@@ -83,6 +88,19 @@ private:
     int mStartSelectionBlockNumber;
     int mEndSelectionBlockNumber;
 
+};
+
+class SCsSearchArea : public QWidget
+{
+public:
+    SCsSearchArea(SCsCodeEditor *editor) : QWidget(editor)
+    {
+        mCodeEditor = editor;
+    }
+
+
+private:
+    SCsCodeEditor *mCodeEditor;
 };
 
 #endif // SCSCODEEDITOR_H
