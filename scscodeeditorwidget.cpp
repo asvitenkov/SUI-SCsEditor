@@ -9,7 +9,6 @@ SCsCodeEditorWidget::SCsCodeEditorWidget(QWidget *parent) :
     QWidget(parent),
     mEditor(0)
 {
-//    mLineErrorArea = new SCsLineErrorArea();
 
     mEditor = new SCsCodeEditor();
     QFont font("Arial",11);
@@ -20,7 +19,6 @@ SCsCodeEditorWidget::SCsCodeEditorWidget(QWidget *parent) :
 
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(mEditor,0,1,1,1);
-//    layout->addWidget(mLineErrorArea,0,0,1,1);
     layout->setMargin(0);
     layout->setSpacing(0);
     setLayout(layout);

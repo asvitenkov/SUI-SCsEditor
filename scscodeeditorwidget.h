@@ -18,9 +18,7 @@ public slots:
 private slots:
     void onCheckGrammarShortcut();
 private:
-    SCsCodeEditor *mEditor;
-//    SCsLineErrorArea *mLineErrorArea;
-    
+    SCsCodeEditor *mEditor;    
 };
 
 #endif // SCSCODEEDITORWIDGET_H
