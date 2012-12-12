@@ -58,7 +58,6 @@ private slots:
     void updateLineNumberArea(const QRect &, int);
     void insertCompletion(QModelIndex index);
     void updateAnalyzer();
-//    void find(const QString &exp, QTextDocument::FindFlags options);
 
 private:
     QWidget *mLineNumberArea;

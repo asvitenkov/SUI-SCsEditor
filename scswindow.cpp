@@ -116,16 +116,6 @@ void SCsWindow::_update()
 
 }
 
-QIcon SCsWindow::icon() const
-{
-    return findIcon("mime_type.png");
-}
-
-QIcon SCsWindow::findIcon(const QString &iconName)
-{
-    return QIcon(":/media/icons/" + iconName);
-}
-
 void SCsWindow::textChanged()
 {
     mIsSaved = false;

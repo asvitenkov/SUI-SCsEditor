@@ -12,10 +12,10 @@ class SCsCodeEditorFindWidget : public QWidget
     Q_OBJECT
 public:
     SCsCodeEditorFindWidget(SCsCodeEditor *editor=0);
-
+    void setFocus();
 protected:
     void keyPressEvent(QKeyEvent *e);
-    
+
 private:
     void find();
 

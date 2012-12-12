@@ -56,9 +56,6 @@ public:
 
     /*! Get icon specified for window type
     */
-    QIcon icon() const;
-
-    static QIcon findIcon(const QString &iconName);
 
 private:
     SCsCodeEditor *mEditor;

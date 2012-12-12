@@ -174,6 +174,7 @@ void SCsCodeEditor::keyPressEvent(QKeyEvent *e)
     if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
     {
         mFinder->show();
+        mFinder->setFocus();
         mCompleter->popup()->update();
         return;
     }

@@ -14,10 +14,15 @@ SCsCodeEditorFindWidget::SCsCodeEditorFindWidget(SCsCodeEditor *editor) :
 {
     mEditor = editor;
 
-    mSearchEdit = new QLineEdit();
-    mIsCaseSensitive = new QCheckBox("Case sensitive");
-    mIsFindBackward = new QCheckBox("Find Backward");
-    mIsFindWholeWord = new QCheckBox("Whole word");
+    mSearchEdit = new QLineEdit(this);
+    mSearchEdit->setMinimumWidth(80);
+    QFont font("Arial", 11);
+    font.setStyleHint(QFont::Serif);
+    this->setFont(font);
+    mIsCaseSensitive = new QCheckBox(tr("Case sensitive"),this);
+    mIsFindWholeWord = new QCheckBox(tr("Whole word"),this);
+    mIsFindBackward = new QCheckBox(tr("Find Backward"),this);
+
 
     QHBoxLayout *layout = new QHBoxLayout();
     layout->addWidget(mSearchEdit);
@@ -25,8 +30,7 @@ SCsCodeEditorFindWidget::SCsCodeEditorFindWidget(SCsCodeEditor *editor) :
     layout->addWidget(mIsFindWholeWord);
     layout->addWidget(mIsFindBackward);
 
-    layout->setMargin(0);
-    layout->setSpacing(0);
+    layout->setContentsMargins(QMargins(0,5,20,0));
 
     setLayout(layout);
 }
@@ -61,4 +65,12 @@ void SCsCodeEditorFindWidget::find()
     }
 
     mEditor->find(mSearchEdit->text(), searchFlags);
+}
+
+
+void SCsCodeEditorFindWidget::setFocus()
+{
+    QWidget::setFocus();
+    mSearchEdit->setFocus();
+    mSearchEdit->selectAll();
 }
