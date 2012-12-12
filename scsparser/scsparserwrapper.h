@@ -49,10 +49,10 @@ public:
 private:
     void clearErrors();
 
-
     QString mParseData;
     QList<SCsParserError*> mErrorList;
     bool mClearErrors;
+
 signals:
     
 public slots:
