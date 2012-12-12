@@ -5,7 +5,7 @@
 #include "scscodeeditorfindwidget.h"
 
 
-//#include "scsparser/scsparserwrapper.h"
+#include "scsparser/scsparserwrapper.h"
 
 int main(int argc, char *argv[])
 {
