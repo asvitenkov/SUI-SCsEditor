@@ -19,26 +19,28 @@ SCsCodeEditorFindWidget::SCsCodeEditorFindWidget(SCsCodeEditor *editor) :
     QFont font("Arial", 11);
     font.setStyleHint(QFont::Serif);
     this->setFont(font);
+
+    mFindPreviousButton = setupToolButton(tr("Previous"), ":/media/icons/find-previous.png");
+    connect(mFindPreviousButton, SIGNAL(clicked()), this, SLOT(findPrevious()));
+    mFindNextButton = setupToolButton(tr("Next"), ":/media/icons/find-next.png");
+    connect(mFindNextButton, SIGNAL(clicked()), this, SLOT(findNext()));
+
     mIsCaseSensitive = new QCheckBox(tr("Case sensitive"),this);
     mIsFindWholeWord = new QCheckBox(tr("Whole word"),this);
 
     mCloseButton = setupToolButton("", ":/media/icons/find-close.png");
     connect(mCloseButton, SIGNAL(clicked()), this, SLOT(hide()));
-
-    mFindNextButton = setupToolButton(tr("Next"), ":/media/icons/find-next.png");
-    connect(mFindNextButton, SIGNAL(clicked()), this, SLOT(findNext()));
-
-    mFindPreviousButton = setupToolButton(tr("Previous"), ":/media/icons/find-previous.png");
-    connect(mFindPreviousButton, SIGNAL(clicked()), this, SLOT(findPrevious()));
+    mCloseButton->setFixedHeight(28);
+    mCloseButton->setFixedWidth(28);
 
     QHBoxLayout *layout = new QHBoxLayout();
 
+    layout->addWidget(mCloseButton);
     layout->addWidget(mSearchEdit);
     layout->addWidget(mFindPreviousButton);
     layout->addWidget(mFindNextButton);
     layout->addWidget(mIsCaseSensitive);
     layout->addWidget(mIsFindWholeWord);
-    layout->addWidget(mCloseButton);
 
     layout->setContentsMargins(QMargins(0,5,20,0));
 
@@ -74,14 +76,12 @@ QTextDocument::FindFlags SCsCodeEditorFindWidget::getFlags(){
 
 void SCsCodeEditorFindWidget::findNext()
 {
-    QTextDocument::FindFlags searchFlags = getFlags();
-
-    bool result = mEditor->find(mSearchEdit->text(), searchFlags);
+    mEditor->find(mSearchEdit->text(), getFlags());
 }
 
 void SCsCodeEditorFindWidget::findPrevious()
 {
-    bool result = mEditor->find(mSearchEdit->text(), getFlags()|QTextDocument::FindBackward);
+    mEditor->find(mSearchEdit->text(), getFlags()|QTextDocument::FindBackward);
 }
 
 void SCsCodeEditorFindWidget::setFocus()
