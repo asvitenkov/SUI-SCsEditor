@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     SCsWindow edit("SCs Editor");
+    edit.resize(500,400);
     edit.show();
     return a.exec();
 }
