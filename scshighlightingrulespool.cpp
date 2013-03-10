@@ -54,6 +54,11 @@ SCsHighlightingRulesPool::SCsHighlightingRulesPool()
     QRegExp end = QRegExp("\\n");
     mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
 
+    // simply idtf
+    // TODO make normal ID
+    format.setForeground(QColor(255, 128, 64));// const
+    mRules.append(new SCsStdHighlightingRule(QRegExp("_[A-Za-z0-9]+"), format));
+
     // multi line comment
     format.setForeground(Qt::darkGray);
     start = QRegExp("/!\\*");
@@ -70,6 +75,8 @@ SCsHighlightingRulesPool::SCsHighlightingRulesPool()
     start = QRegExp("\\[");
     end = QRegExp("\\]");
     mRules.append(new SCsMultiLineContentHighlightingRule(start,end, format));
+
+
 
 }
 
