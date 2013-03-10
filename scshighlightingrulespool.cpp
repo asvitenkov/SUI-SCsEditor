@@ -47,28 +47,25 @@ SCsHighlightingRulesPool::SCsHighlightingRulesPool()
     initScArcRules();
 
     QTextCharFormat format;
-    format.setForeground(QBrush(QColor(0, 128, 0)));
-    pattern = QRegExp("\".*\"");
-    mRules.append(new SCsStdHighlightingRule(pattern, format));
 
-    pattern = QRegExp("/\".*\"/");
-    format.setForeground(QBrush(QColor(0, 164, 0)));
-    mRules.append(new SCsStdHighlightingRule(pattern, format));
-
-    //format.setForeground(Qt::blue); //what is it???
-    //pattern = QRegExp("#include");
-    //mRules.append(new SCsStdHighlightingRule(pattern, format));
-
+    // single line comment
     format.setForeground(Qt::darkGray);
     QRegExp start = QRegExp("//");
     QRegExp end = QRegExp("\\n");
     mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
 
+    // multi line comment
     format.setForeground(Qt::darkGray);
     start = QRegExp("/!\\*");
     end = QRegExp("\\*/");
     mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
 
+    // URL
+    format.setForeground(QBrush(QColor(0, 128, 0)));
+    pattern = QRegExp("\".*\"");
+    mRules.append(new SCsStdHighlightingRule(pattern, format));
+
+    // content
     format.setForeground(QColor(122, 55, 139));
     start = QRegExp("\\[");
     end = QRegExp("\\]");
