@@ -8,15 +8,16 @@ OBJECTS_DIR = obj
 MOC_DIR = moc
 
 INCLUDEPATH += scsparser \
-    scsparser/include
+    scsparser/include \
+    highlightingrules
 
 HEADERS += \
     scssyntaxhighlighter.h \
-    scsstdhighlightingrule.h \
-    scsmultilinecommenthighlightingrule.h \
+    highlightingrules/scsstdhighlightingrule.h \
+    highlightingrules/scsmultilinecommenthighlightingrule.h \
     scshighlightingrulespool.h \
     scscodeeditor.h \
-    scsabstracthighlightingrule.h \
+    highlightingrules/scsabstracthighlightingrule.h \
     scscodeanalyzer.h \
     scscodecompleter.h \
     scswindow.h \
@@ -24,15 +25,16 @@ HEADERS += \
     scsparser/SCsParser.hpp \
     scsparser/SCsLexer.hpp \
     scscodeeditorwidget.h \
-    scscodeeditorfindwidget.h
+    scscodeeditorfindwidget.h \
+    highlightingrules/scsmultilinecontenthighlightingrule.h
     
 SOURCES += \
     scssyntaxhighlighter.cpp \
-    scsstdhighlightingrule.cpp \
-    scsmultilinecommenthighlightingrule.cpp \
+    highlightingrules/scsstdhighlightingrule.cpp \
+    highlightingrules/scsmultilinecommenthighlightingrule.cpp \
     scshighlightingrulespool.cpp \
     scscodeeditor.cpp \
-    scsabstracthighlightingrule.cpp \
+    highlightingrules/scsabstracthighlightingrule.cpp \
     scscodeanalyzer.cpp \
     scscodecompleter.cpp \
     main.cpp \
@@ -41,7 +43,8 @@ SOURCES += \
     scsparser/SCsParser.cpp \
     scsparser/SCsLexer.cpp \
     scscodeeditorwidget.cpp \
-    scscodeeditorfindwidget.cpp
+    scscodeeditorfindwidget.cpp \
+    highlightingrules/scsmultilinecontenthighlightingrule.cpp
 
 RESOURCES += \
     media/scseditor.qrc
