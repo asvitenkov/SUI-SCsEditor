@@ -25,6 +25,7 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "scsabstracthighlightingrule.h"
 #include "scsmultilinecommenthighlightingrule.h"
+#include "scsmultilinecontenthighlightingrule.h"
 
 #include <QList>
 
