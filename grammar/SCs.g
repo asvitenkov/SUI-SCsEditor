@@ -4,6 +4,7 @@ options
 {
     language = Cpp;
     backtrack = true;
+    k = 5;
 }
 
 @lexer::includes
@@ -15,6 +16,9 @@ options
 {
    #include "SCsLexer.hpp"
    #include <list>
+   #include "scsastnodes.h"
+   using namespace SCsAST;
+   
 }
 
 
@@ -43,60 +47,100 @@ syntax
     ;
    
 
-sentence 
+sentence  returns [SentenceAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : sentence_lv1 | sentence_lv23456
     ;
 
 
-sentence_lv23456
-    : idtf CONNECTORS attrsList objectList
+sentence_lv23456 returns [SentenceLv234561AST *retPtr]
+@int{
+  retPtr = NULL;
+}
+    : idtf CONNECTORS   attrsList objectList
     ;
 
+
 // add type to simpleidtf
-sentence_lv1
+sentence_lv1 returns [SentenceLvl1AST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : simpleIdtf TRIPLESEP simpleIdtf TRIPLESEP simpleIdtf 
     ;
 
 
-attrsList
+attrsList returns [AttributesListAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     :  (simpleIdtf ATTRSEP)*
     ;
     
-objectList
+objectList returns [ObjectListAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : idtfWithInt (OBJSEP idtfWithInt)*
     ;
     
-    
-intSentence
+intSentence returns [InternalSentenceAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : CONNECTORS attrsList  objectList 
     ;
+   
 
-intSentenceList
+intSentenceList returns [InternalSentenceListAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : LPAR_INT ( intSentence SENTSEP)+  RPAR_INT
     ;
 
-internal
+internal returns [InternalAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     :  intSentenceList
     ;
     
-triple
+triple returns [TripleAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : LPAR idtf CONTENT idtf RPAR
     ;
 
-alias
+alias returns [AliasAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : ALIASNONAME
     ;
 // LPAR_SET (attrsList idtfWithInt OBJSEP )*   attrsList idtfWithInt  RPAR_SET
-setIdtf
+setIdtf returns [SetIdentifierAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : LPAR_SET (attrsList idtfWithInt OBJSEP? )*   RPAR_SET
     ;
 
 // LPAR_OSET ( attrsList idtfWithInt OBJSEP )*  attrsList  idtfWithInt RPAR_OSET    
-osetIdtf
+osetIdtf returns [OSetIdentifierAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     : LPAR_OSET ( attrsList idtfWithInt OBJSEP? )*  RPAR_OSET
     ;
 
-anyIdtf
+anyIdtf returns [AnyIdentifierAST *retPtr]
+@int{
+  retPtr = NULL;
+}
     :  
         simpleIdtf
       | CONTENT
@@ -107,17 +151,27 @@ anyIdtf
     ;
     
     
-idtf
-    : anyIdtf
+idtf returns [IdentifierAST *retPtr]
+@int{
+  retPtr = NULL;
+}
+    : anyIdtf {}
     ;
 
-simpleIdtf  :
-   (ELEMTYPE '/')?  NAME | URL 
+simpleIdtf returns [SimpleIdentifierAST *retPtr]
+@int{
+  retPtr = NULL;
+} 
+:
+   NAME | URL 
 ;
 
   
 
-idtfWithInt
+idtfWithInt returns [IdentifierWithInternalAST *retPrt]
+@int{
+  retPtr = NULL;
+}
     :  idtf internal? 
     ;
   
@@ -215,40 +269,46 @@ CONNECTORS  :
               | '->'
               | '<-'
               | '<=>'
-              | '_<=>'
-              | '='
               | '=>'
               | '<='
-              | '_=>'
-              | '_<='
-              | '_->'
-              | '_<-'
               | '-|>'
               | '<|-'
-              | '_-|>'
-              | '_<|-'
               | '-/>'
               | '</-'
-              | '_-/>'
-              | '_</-'
               | '~>'
               | '<~'
-              | '_~>'
-              | '_<~'
               | '~|>'
               | '<|~'
-              | '_~|>'
-              | '_<|~'
               | '~/>'
               | '</~'
+              | '='
+              | '_<>'
+              | '_>'
+              | '_<'
+              | '_..>'
+              | '_<..'
+              | '_->'
+              | '_<-'
+              | '_<=>'
+              | '_=>'
+              | '_<='
+              | '_-|>'
+              | '_<|-'
+              | '_-/>'
+              | '_</-'
+              | '_~>'
+              | '_<~'
+              | '_~|>'
+              | '_<|~'
               | '_~/>'
               | '_</~'
+              | '_='
               
 ;
 
 
 NAME
-    :    ( 'a'..'z'|'A'..'Z'|'0'..'9'| '_')+
+    :    ( 'a'..'z'|'A'..'Z'|'0'..'9'| '_' | '#' | '.' )+
     ;
 
 
