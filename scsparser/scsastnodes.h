@@ -6,9 +6,6 @@
 #include <QList>
 #include <QString>
 
-
-#define LOG_WARNING
-
 namespace SCsAST{
 
 
@@ -32,6 +29,7 @@ class InternalAST;
 class InternalSentenceListAST;
 class InternalSentenceAST;
 class ObjectListAST;
+class SimpleIdentifierWAttributeSeparatorAST;
 
 //class AST;
 //class AST;
@@ -59,6 +57,7 @@ enum _ASTNodeType{
     ,INTERNAL_SENTENCE_LIST
     ,INTERNAL_SENTENCE
     ,OBJECT_LIST
+    ,SIMPLE_IDENTIFIER_W_ATTRIBUTE_SEPARATOR
 };
 
 typedef _ASTNodeType ASTNodeType;
@@ -96,7 +95,7 @@ public:
     explicit SentenceAST(SentenceLv234561AST *sentence);
     virtual ~SentenceAST();
 
-    NodeType(SENTENCE);
+    NodeType(SENTENCE)
 private:
     SentenceLvl1AST* mSentenceLvl1;
     SentenceLv234561AST* mSentenceLvl23456;
@@ -114,7 +113,7 @@ public:
     void setSecondIdentifier(SimpleIdentifierAST *idtf);
     void setThirdIdentifier(SimpleIdentifierAST *idtf);
 
-    NodeType(SENTENCE_LVL1);
+    NodeType(SENTENCE_LVL1)
 private:
     SimpleIdentifierAST *mFirstIdtf;
     SimpleIdentifierAST *mSecondIdtf;
@@ -133,7 +132,7 @@ public:
     void setAttributeList(AttributesListAST* attrLst);
     void setObjectList(ObjectListAST* objLst);
 
-    NodeType(SENTENCE_LVL23456);
+    NodeType(SENTENCE_LVL23456)
 private:
     IdentifierAST *mIdentifier;
     QString mConntector;
@@ -148,9 +147,9 @@ public:
     ~SimpleIdentifierAST();
 
     void setName(QString name);
-    void setURL(QString url);
+    void setUrl(QString url);
 
-    NodeType(SIMPLE_IDENTIFIER);
+    NodeType(SIMPLE_IDENTIFIER)
 
 private:
     QString         mName;
@@ -161,7 +160,10 @@ private:
 class IdentifierAST: public AST
 {
 public:
-    NodeType(IDENTIFIER);
+    explicit IdentifierAST(AnyIdentifierAST *idtf);
+    virtual ~IdentifierAST();
+
+    NodeType(IDENTIFIER)
 private:
     AnyIdentifierAST *mIdentidier;
 };
@@ -170,7 +172,14 @@ private:
 class TripleAST: public AST
 {
 public:
-    NodeType(TRIPLE);
+    TripleAST();
+    TripleAST(IdentifierAST *firstIdtf, IdentifierAST *secondIdtf);
+    virtual ~TripleAST();
+
+    void setFirstIdentifier(IdentifierAST *idtf);
+    void setSecondIdentifier(IdentifierAST *idtf);
+
+    NodeType(TRIPLE)
 private:
     IdentifierAST   *mFirstIdtf;
     IdentifierAST   *mSecondIdtf;
@@ -179,23 +188,44 @@ private:
 class AnyIdentifierAST: public AST
 {
 public:
-    NodeType(ANY_IDENTIFIER);
+    explicit AnyIdentifierAST(SimpleIdentifierAST *idtf);
+    explicit AnyIdentifierAST(QString content);
+    explicit AnyIdentifierAST(TripleAST *triple);
+    explicit AnyIdentifierAST(SetIdentifierAST *setIdtf);
+    explicit AnyIdentifierAST(OSetIdentifierAST *osetIdtf);
+    explicit AnyIdentifierAST(AliasAST *alias);
+    virtual ~AnyIdentifierAST();
+
+
+    NodeType(ANY_IDENTIFIER)
 private:
     SimpleIdentifierAST *mSimplyIdtf;
     QString             mContent;
-    TripleAST           mTriple;
+    TripleAST           *mTriple;
     SetIdentifierAST    *mSetIdtf;
-    SetIdentifierAST    *mOSetIdtf;
+    OSetIdentifierAST    *mOSetIdtf;
     AliasAST            *mAlias;
 };
 
 class SetIdentifierAST: public AST
 {
 public:
-    NodeType(SET_IDENTIFIER);
+    SetIdentifierAST();
+    SetIdentifierAST(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+    virtual ~SetIdentifierAST();
+
+    void addSentence(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+
+    NodeType(SET_IDENTIFIER)
 private:
     struct SetIdentifierSentence
     {
+        SetIdentifierSentence(AttributesListAST *lst,IdentifierWithInternalAST *idtf)
+        {
+            mAttrList = lst;
+            mIdtfWithInt = idtf;
+        }
+
         AttributesListAST           *mAttrList;
         IdentifierWithInternalAST   *mIdtfWithInt;
     };
@@ -206,10 +236,20 @@ private:
 class OSetIdentifierAST: public AST
 {
 public:
-    NodeType(OSET_IDENTIFIER);
+    OSetIdentifierAST();
+    //OSetIdentifierAST(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+    virtual ~OSetIdentifierAST();
+
+    void addSentence(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+    NodeType(OSET_IDENTIFIER)
 private:
     struct OSetIdentifierSentence
     {
+        OSetIdentifierSentence(AttributesListAST *lst,IdentifierWithInternalAST *idtf)
+        {
+            mAttrList = lst;
+            mIdtfWithInt = idtf;
+        }
         AttributesListAST           *mAttrList;
         IdentifierWithInternalAST   *mIdtfWithInt;
     };
@@ -220,7 +260,10 @@ private:
 class AliasAST: public AST
 {
 public:
-    NodeType(ALIAS);
+    AliasAST(QString alias);
+    virtual ~AliasAST();
+
+    NodeType(ALIAS)
 private:
     QString     mAlias;
 };
@@ -229,15 +272,46 @@ private:
 class AttributesListAST: public AST
 {
 public:
-    NodeType(ATRIBUTES_LIST);
+    AttributesListAST();
+    AttributesListAST(SimpleIdentifierWAttributeSeparatorAST *idtf);
+    virtual ~AttributesListAST();
+
+    void addIdentifier(SimpleIdentifierWAttributeSeparatorAST *idtf);
+    AttributesListAST* operator <<(SimpleIdentifierWAttributeSeparatorAST *idtf);
+
+    NodeType(ATRIBUTES_LIST)
 private:
-    QList<SimpleIdentifierAST*> mAttrListSentenceLst;
+    QList<SimpleIdentifierWAttributeSeparatorAST*> mAttrListSentenceLst;
 };
+
+class SimpleIdentifierWAttributeSeparatorAST: public AST
+{
+public:
+    SimpleIdentifierWAttributeSeparatorAST();
+    SimpleIdentifierWAttributeSeparatorAST(SimpleIdentifierAST *idtf, QString attrSep);
+    virtual ~SimpleIdentifierWAttributeSeparatorAST();
+
+    void setIdentifier(SimpleIdentifierAST *idtf);
+    void setAttributeSeparator(QString attrSep);
+
+    NodeType(SIMPLE_IDENTIFIER_W_ATTRIBUTE_SEPARATOR)
+private:
+    SimpleIdentifierAST *mIdentifier;
+    QString mAttrSep;
+};
+
 
 class IdentifierWithInternalAST: public AST
 {
 public:
-    NodeType(IDTF_WITH_INT);
+    IdentifierWithInternalAST();
+    explicit IdentifierWithInternalAST(IdentifierAST *idtf, InternalAST *internal = NULL);
+    virtual ~IdentifierWithInternalAST();
+
+    void setIdentifier(IdentifierAST *idtf);
+    void setInternal(InternalAST *internal);
+
+    NodeType(IDTF_WITH_INT)
 private:
     IdentifierAST   *mIdtf;
     InternalAST     *mInternal;
@@ -247,7 +321,10 @@ private:
 class InternalAST: public AST
 {
 public:
-    NodeType(INTERNAL);
+    explicit InternalAST(InternalSentenceListAST *lst);
+    virtual ~InternalAST();
+
+    NodeType(INTERNAL)
 private:
     InternalSentenceListAST *mInternalLst;
 };
@@ -256,17 +333,35 @@ private:
 class InternalSentenceListAST: public AST
 {
 public:
-    NodeType(INTERNAL_SENTENCE_LIST);
+    InternalSentenceListAST();
+    explicit InternalSentenceListAST(InternalSentenceAST *sentence);
+    virtual ~InternalSentenceListAST();
+
+    void addSentence(InternalSentenceAST *sentence);
+    InternalSentenceListAST* operator <<(InternalSentenceAST *sentence);
+
+
+    NodeType(INTERNAL_SENTENCE_LIST)
 private:
-    QList<InternalSentenceAST> *mInternalLst;
+    QList<InternalSentenceAST*> mInternalLst;
 };
 
 
 class InternalSentenceAST: public AST
 {
 public:
-    NodeType(INTERNAL_SENTENCE);
+    InternalSentenceAST();
+    InternalSentenceAST(QString connector, AttributesListAST *attrLst, ObjectListAST *objLst);
+    ~InternalSentenceAST();
+
+    void setConnector(QString connector);
+    void setAttributeList(AttributesListAST *lst);
+    void setObjectList(ObjectListAST *lst);
+
+
+    NodeType(INTERNAL_SENTENCE)
 private:
+    QString mConnector;
     AttributesListAST *mAttributeList;
     ObjectListAST *mObjectList;
 };
@@ -275,7 +370,15 @@ private:
 class ObjectListAST: public AST
 {
 public:
-    NodeType(OBJECT_LIST);
+    ObjectListAST();
+    ObjectListAST(IdentifierWithInternalAST *idtf);
+    ~ObjectListAST();
+
+    void addIdentifier(IdentifierWithInternalAST *idtf);
+    ObjectListAST* operator <<(IdentifierWithInternalAST*);
+
+
+    NodeType(OBJECT_LIST)
 private:
     QList<IdentifierWithInternalAST*> mIdtfWithIntLst;
 };
