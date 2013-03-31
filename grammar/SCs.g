@@ -48,7 +48,7 @@ syntax
    
 
 sentence  returns [SentenceAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     : sentence_lv1 | sentence_lv23456
@@ -56,7 +56,7 @@ sentence  returns [SentenceAST *retPtr]
 
 
 sentence_lv23456 returns [SentenceLv234561AST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     : idtf CONNECTORS   attrsList objectList
@@ -65,7 +65,7 @@ sentence_lv23456 returns [SentenceLv234561AST *retPtr]
 
 // add type to simpleidtf
 sentence_lv1 returns [SentenceLvl1AST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     : simpleIdtf TRIPLESEP simpleIdtf TRIPLESEP simpleIdtf 
@@ -73,21 +73,32 @@ sentence_lv1 returns [SentenceLvl1AST *retPtr]
 
 
 attrsList returns [AttributesListAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
-    :  (simpleIdtf ATTRSEP)*
+    :  ( simpleIdtf_attrsep )*
     ;
+
+
+simpleIdtf_attrsep
+: simpleIdtf ATTRSEP
+;
+    
     
 objectList returns [ObjectListAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
-    : idtfWithInt (OBJSEP idtfWithInt)*
+    : idtfWithInt ( objsep_IdtfWithInt )*
     ;
+
+objsep_IdtfWithInt
+  : OBJSEP idtfWithInt
+  ;
+
     
 intSentence returns [InternalSentenceAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     : CONNECTORS attrsList  objectList 
@@ -95,50 +106,61 @@ intSentence returns [InternalSentenceAST *retPtr]
    
 
 intSentenceList returns [InternalSentenceListAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
-    : LPAR_INT ( intSentence SENTSEP)+  RPAR_INT
+    : LPAR_INT ( intSentence_sentsep )+  RPAR_INT
     ;
 
+intSentence_sentsep
+:  intSentence SENTSEP
+;
+
 internal returns [InternalAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     :  intSentenceList
     ;
     
 triple returns [TripleAST *retPtr]
-@int{
-  retPtr = NULL;
+@init{
+  retPtr = new TripleAST();
 }
-    : LPAR idtf CONTENT idtf RPAR
+    : LPAR a=idtf { retPtr->setFirstIdentifier($a.retPtr); } CONTENT b=idtf { retPtr->setFirstIdentifier($a.retPtr); }  RPAR
     ;
 
 alias returns [AliasAST *retPtr]
-@int{
+@init{c
   retPtr = NULL;
 }
     : ALIASNONAME
     ;
+    
 // LPAR_SET (attrsList idtfWithInt OBJSEP )*   attrsList idtfWithInt  RPAR_SET
 setIdtf returns [SetIdentifierAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
-    : LPAR_SET (attrsList idtfWithInt OBJSEP? )*   RPAR_SET
+    //: LPAR_SET (attrsList idtfWithInt OBJSEP? )*   RPAR_SET
+    : LPAR_SET attrsList idtfWithInt ( objsep_AttrsList_idtfWithInt )*   RPAR_SET
     ;
+
+objsep_AttrsList_idtfWithInt
+: OBJSEP attrsList idtfWithInt
+;
 
 // LPAR_OSET ( attrsList idtfWithInt OBJSEP )*  attrsList  idtfWithInt RPAR_OSET    
 osetIdtf returns [OSetIdentifierAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
-    : LPAR_OSET ( attrsList idtfWithInt OBJSEP? )*  RPAR_OSET
+    //: LPAR_OSET ( attrsList idtfWithInt OBJSEP? )*  RPAR_OSET
+    : LPAR_OSET attrsList idtfWithInt  (objsep_AttrsList_idtfWithInt)*  RPAR_OSET
     ;
 
 anyIdtf returns [AnyIdentifierAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     :  
@@ -152,25 +174,26 @@ anyIdtf returns [AnyIdentifierAST *retPtr]
     
     
 idtf returns [IdentifierAST *retPtr]
-@int{
+@init{
   retPtr = NULL;
 }
     : anyIdtf {}
     ;
 
 simpleIdtf returns [SimpleIdentifierAST *retPtr]
-@int{
-  retPtr = NULL;
+@init{
+  retPtr = new SimpleIdentifierAST();
 } 
 :
-   NAME | URL 
+     NAME { retPtr->setName(QString::fromStdString($NAME.text));  } 
+   | URL  { retPtr->setUrl(QString::fromStdString($URL.text));  } 
 ;
 
   
 
 idtfWithInt returns [IdentifierWithInternalAST *retPrt]
-@int{
-  retPtr = NULL;
+@init{
+  //retPtr = new IdentifierWithInternalAST();
 }
     :  idtf internal? 
     ;
