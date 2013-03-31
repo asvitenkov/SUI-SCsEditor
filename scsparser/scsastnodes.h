@@ -29,15 +29,10 @@ class InternalAST;
 class InternalSentenceListAST;
 class InternalSentenceAST;
 class ObjectListAST;
-class SimpleIdentifierWAttributeSeparatorAST;
-
-//class AST;
-//class AST;
-//class AST;
-//class AST;
-//class AST;
-
-
+class SimpleIdtfrWAttrSepAST;
+class ObjSepWAttrListWIdtfWithInt;
+class IntSentenceWSentSep;
+class ObjSepWIdtfWithInt;
 
 enum _ASTNodeType{
     ROOT                    = 1
@@ -58,6 +53,9 @@ enum _ASTNodeType{
     ,INTERNAL_SENTENCE
     ,OBJECT_LIST
     ,SIMPLE_IDENTIFIER_W_ATTRIBUTE_SEPARATOR
+    ,OBJSEP_W_ATTR_LIST_W_IDTF_WITH_INT
+    ,INT_SENTENCE_W_SENT_SEP
+    ,OBJ_SEP_W_IDTF_WITH_INT
 };
 
 typedef _ASTNodeType ASTNodeType;
@@ -112,9 +110,14 @@ public:
     void setFirstIdentifier(SimpleIdentifierAST *idtf);
     void setSecondIdentifier(SimpleIdentifierAST *idtf);
     void setThirdIdentifier(SimpleIdentifierAST *idtf);
+    void setFirstTripleSeparator(QString separator);
+    void setSecondTripleSeparator(QString separator);
+
 
     NodeType(SENTENCE_LVL1)
 private:
+    QString mFirstTripleSep;
+    QString mSecondTripleSep;
     SimpleIdentifierAST *mFirstIdtf;
     SimpleIdentifierAST *mSecondIdtf;
     SimpleIdentifierAST *mThirdIdtf;
@@ -173,14 +176,19 @@ class TripleAST: public AST
 {
 public:
     TripleAST();
-    TripleAST(IdentifierAST *firstIdtf, IdentifierAST *secondIdtf);
     virtual ~TripleAST();
 
     void setFirstIdentifier(IdentifierAST *idtf);
     void setSecondIdentifier(IdentifierAST *idtf);
+    void setLeftPar(QString par);
+    void setRighPar(QString par);
+    void setContent(QString content);
 
     NodeType(TRIPLE)
 private:
+    QString mLeftPar;
+    QString mRightPar;
+    QString mContent;
     IdentifierAST   *mFirstIdtf;
     IdentifierAST   *mSecondIdtf;
 };
@@ -207,55 +215,69 @@ private:
     AliasAST            *mAlias;
 };
 
+
+class ObjSepWAttrListWIdtfWithInt: public AST
+{
+public:
+    ObjSepWAttrListWIdtfWithInt();
+    ObjSepWAttrListWIdtfWithInt(QString separator, AttributesListAST *lst, IdentifierWithInternalAST *idtf);
+    virtual ~ObjSepWAttrListWIdtfWithInt();
+
+    void setSeparator(QString separator);
+    void setAttributeList(AttributesListAST *lst);
+    void setIdentifier(IdentifierWithInternalAST *idtf);
+
+    NodeType(OBJSEP_W_ATTR_LIST_W_IDTF_WITH_INT)
+private:
+    QString mObjSep;
+    AttributesListAST *mAttrLst;
+    IdentifierWithInternalAST *mIdtfWithInt;
+};
+
+
 class SetIdentifierAST: public AST
 {
 public:
     SetIdentifierAST();
-    SetIdentifierAST(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
     virtual ~SetIdentifierAST();
 
-    void addSentence(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+    void setLeftSeparator(QString sep);
+    void setRightSeparator(QString sep);
+    void setAttributeList(AttributesListAST *lst);
+    void setIdentifier(IdentifierWithInternalAST *idtf);
+    void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
+    SetIdentifierAST* operator <<(ObjSepWAttrListWIdtfWithInt*);
 
     NodeType(SET_IDENTIFIER)
 private:
-    struct SetIdentifierSentence
-    {
-        SetIdentifierSentence(AttributesListAST *lst,IdentifierWithInternalAST *idtf)
-        {
-            mAttrList = lst;
-            mIdtfWithInt = idtf;
-        }
-
-        AttributesListAST           *mAttrList;
-        IdentifierWithInternalAST   *mIdtfWithInt;
-    };
-    QList<SetIdentifierSentence*> mSetSentenceLst;
+    QString mLeftSep;
+    AttributesListAST *mAttrLst;
+    IdentifierWithInternalAST *mIdtf;
+    QList<ObjSepWAttrListWIdtfWithInt*> mSetSentenceLst;
+    QString mRightSep;
 };
-
 
 class OSetIdentifierAST: public AST
 {
 public:
     OSetIdentifierAST();
-    //OSetIdentifierAST(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
     virtual ~OSetIdentifierAST();
 
-    void addSentence(AttributesListAST* attrLst, IdentifierWithInternalAST *idtf);
+    void setLeftSeparator(QString sep);
+    void setRightSeparator(QString sep);
+    void setAttributeList(AttributesListAST *lst);
+    void setIdentifier(IdentifierWithInternalAST *idtf);
+    void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
+    OSetIdentifierAST* operator <<(ObjSepWAttrListWIdtfWithInt*);
+
     NodeType(OSET_IDENTIFIER)
 private:
-    struct OSetIdentifierSentence
-    {
-        OSetIdentifierSentence(AttributesListAST *lst,IdentifierWithInternalAST *idtf)
-        {
-            mAttrList = lst;
-            mIdtfWithInt = idtf;
-        }
-        AttributesListAST           *mAttrList;
-        IdentifierWithInternalAST   *mIdtfWithInt;
-    };
-    QList<OSetIdentifierSentence*> mSetSentenceLst;
+    QString mLeftSep;
+    AttributesListAST *mAttrLst;
+    IdentifierWithInternalAST *mIdtf;
+    QList<ObjSepWAttrListWIdtfWithInt*> mSetSentenceLst;
+    QString mRightSep;
 };
-
 
 class AliasAST: public AST
 {
@@ -273,23 +295,23 @@ class AttributesListAST: public AST
 {
 public:
     AttributesListAST();
-    AttributesListAST(SimpleIdentifierWAttributeSeparatorAST *idtf);
+    AttributesListAST(SimpleIdtfrWAttrSepAST *idtf);
     virtual ~AttributesListAST();
 
-    void addIdentifier(SimpleIdentifierWAttributeSeparatorAST *idtf);
-    AttributesListAST* operator <<(SimpleIdentifierWAttributeSeparatorAST *idtf);
+    void addIdentifier(SimpleIdtfrWAttrSepAST *idtf);
+    AttributesListAST* operator <<(SimpleIdtfrWAttrSepAST *idtf);
 
     NodeType(ATRIBUTES_LIST)
 private:
-    QList<SimpleIdentifierWAttributeSeparatorAST*> mAttrListSentenceLst;
+    QList<SimpleIdtfrWAttrSepAST*> mAttrListSentenceLst;
 };
 
-class SimpleIdentifierWAttributeSeparatorAST: public AST
+class SimpleIdtfrWAttrSepAST: public AST
 {
 public:
-    SimpleIdentifierWAttributeSeparatorAST();
-    SimpleIdentifierWAttributeSeparatorAST(SimpleIdentifierAST *idtf, QString attrSep);
-    virtual ~SimpleIdentifierWAttributeSeparatorAST();
+    SimpleIdtfrWAttrSepAST();
+    SimpleIdtfrWAttrSepAST(SimpleIdentifierAST *idtf, QString attrSep);
+    virtual ~SimpleIdtfrWAttrSepAST();
 
     void setIdentifier(SimpleIdentifierAST *idtf);
     void setAttributeSeparator(QString attrSep);
@@ -334,16 +356,18 @@ class InternalSentenceListAST: public AST
 {
 public:
     InternalSentenceListAST();
-    explicit InternalSentenceListAST(InternalSentenceAST *sentence);
     virtual ~InternalSentenceListAST();
 
-    void addSentence(InternalSentenceAST *sentence);
-    InternalSentenceListAST* operator <<(InternalSentenceAST *sentence);
-
+    void setLeftInternalSeparator(QString separator);
+    void setRigthInternalSeparator(QString separator);
+    void addSentence(IntSentenceWSentSep *sentence);
+    InternalSentenceListAST* operator <<(IntSentenceWSentSep *sentence);
 
     NodeType(INTERNAL_SENTENCE_LIST)
 private:
-    QList<InternalSentenceAST*> mInternalLst;
+    QString mRightIntSep;
+    QString mLeftIntSep;
+    QList<IntSentenceWSentSep*> mInternalLst;
 };
 
 
@@ -371,17 +395,56 @@ class ObjectListAST: public AST
 {
 public:
     ObjectListAST();
-    ObjectListAST(IdentifierWithInternalAST *idtf);
     ~ObjectListAST();
 
-    void addIdentifier(IdentifierWithInternalAST *idtf);
-    ObjectListAST* operator <<(IdentifierWithInternalAST*);
+    void setIdentifierWithInt(IdentifierWithInternalAST *idtf);
+
+    void addIdentifier(ObjSepWIdtfWithInt *idtf);
+    ObjectListAST* operator <<(ObjSepWIdtfWithInt*);
 
 
     NodeType(OBJECT_LIST)
 private:
-    QList<IdentifierWithInternalAST*> mIdtfWithIntLst;
+    IdentifierWithInternalAST *mIdtfWithInt;
+    QList<ObjSepWIdtfWithInt*> mIdtfWithIntLst;
 };
+
+
+class IntSentenceWSentSep: public AST
+{
+public:
+    IntSentenceWSentSep();
+    IntSentenceWSentSep(InternalSentenceAST *sentence, QString septSep);
+    virtual ~IntSentenceWSentSep();
+
+    void setInternalSentence(InternalSentenceAST *sentence);
+    void setSentenceSeparator(QString separator);
+
+
+    NodeType(INT_SENTENCE_W_SENT_SEP)
+private:
+    InternalSentenceAST *mIntSentence;
+    QString mSentSep;
+};
+
+
+class ObjSepWIdtfWithInt: public AST
+{
+public:
+    ObjSepWIdtfWithInt();
+    ObjSepWIdtfWithInt(IdentifierWithInternalAST *idtf, QString objSep);
+    virtual ~ObjSepWIdtfWithInt();
+
+    void setIdentifierWithInternal(IdentifierWithInternalAST *idtf);
+    void setObjectSeparator(QString separator);
+
+
+    NodeType(OBJ_SEP_W_IDTF_WITH_INT)
+private:
+    IdentifierWithInternalAST *mIdtwWithInt;
+    QString mObjSep;
+};
+
 
 
 }

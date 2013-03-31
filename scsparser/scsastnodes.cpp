@@ -127,6 +127,26 @@ SentenceLvl1AST::SentenceLvl1AST(SimpleIdentifierAST *firstIdtf, SimpleIdentifie
 }
 
 
+void SentenceLvl1AST::setFirstTripleSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mFirstTripleSep.isEmpty(),"","mFirstTripleSep already defined");
+
+    if(!separator.isEmpty() && mFirstTripleSep.isEmpty())
+        mFirstTripleSep = separator;
+}
+
+
+void SentenceLvl1AST::setSecondTripleSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mSecondTripleSep.isEmpty(),"","mSecondTripleSep already defined");
+
+    if(!separator.isEmpty() && mSecondTripleSep.isEmpty())
+        mSecondTripleSep = separator;
+}
+
+
 //***********************************************************************
 
 SentenceLv234561AST::SentenceLv234561AST():
@@ -260,15 +280,7 @@ TripleAST::TripleAST():
 
 }
 
-TripleAST::TripleAST(IdentifierAST *firstIdtf, IdentifierAST *secondIdtf):
-    mFirstIdtf(NULL), mSecondIdtf(NULL)
-{
-    Q_CHECK_PTR(firstIdtf);
-    Q_CHECK_PTR(secondIdtf);
 
-    mFirstIdtf = firstIdtf;
-    mSecondIdtf = secondIdtf;
-}
 
 TripleAST::~TripleAST()
 {
@@ -296,6 +308,33 @@ void TripleAST::setSecondIdentifier(IdentifierAST *idtf)
         mSecondIdtf = idtf;
 }
 
+void TripleAST::setLeftPar(QString par)
+{
+    Q_ASSERT_X(mLeftPar.isEmpty(),"","mLeftPar already defined");
+    Q_ASSERT(!par.isEmpty());
+
+    if(!par.isEmpty() && mLeftPar.isEmpty())
+        mLeftPar = par;
+}
+
+void TripleAST::setRighPar(QString par)
+{
+    Q_ASSERT_X(mRightPar.isEmpty(),"","mRightPar already defined");
+    Q_ASSERT(!par.isEmpty());
+
+    if(!par.isEmpty() && mRightPar.isEmpty())
+        mRightPar = par;
+}
+
+
+void TripleAST::setContent(QString content)
+{
+    Q_ASSERT_X(mContent.isEmpty(),"","mContent already defined");
+    Q_ASSERT(!content.isEmpty());
+
+    if(!content.isEmpty() && mContent.isEmpty())
+        mContent = content;
+}
 
 //***********************************************************************
 
@@ -366,44 +405,100 @@ AnyIdentifierAST::~AnyIdentifierAST()
 //***********************************************************************
 
 
-SetIdentifierAST::SetIdentifierAST()
+SetIdentifierAST::SetIdentifierAST():
+    mAttrLst(NULL), mIdtf(NULL)
 {
 
-}
-
-SetIdentifierAST::SetIdentifierAST(AttributesListAST *attrLst, IdentifierWithInternalAST *idtf)
-{
-    Q_CHECK_PTR(attrLst);
-    Q_CHECK_PTR(idtf);
-
-    if(attrLst && idtf)
-        mSetSentenceLst.append(new SetIdentifierSentence(attrLst,idtf));
 }
 
 SetIdentifierAST::~SetIdentifierAST()
 {
     qDeleteAll(mSetSentenceLst.begin(), mSetSentenceLst.end());
     mSetSentenceLst.clear();
+
+    if(mAttrLst)
+        delete mAttrLst;
+    if(mIdtf)
+        delete mIdtf;
 }
 
-void SetIdentifierAST::addSentence(AttributesListAST *attrLst, IdentifierWithInternalAST *idtf)
+
+void SetIdentifierAST::setAttributeList(AttributesListAST *lst)
 {
-    Q_CHECK_PTR(attrLst);
-    Q_CHECK_PTR(idtf);
+    Q_CHECK_PTR(lst);
+    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
 
-    if(attrLst && idtf)
-        mSetSentenceLst.append(new SetIdentifierSentence(attrLst,idtf));
+    if(lst)
+        mAttrLst = lst;
 }
+
+
+
+void SetIdentifierAST::setIdentifier(IdentifierWithInternalAST *idtf)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(mIdtf == NULL,"","mIdtf already defined");
+
+    if(idtf && !mIdtf)
+        mIdtf = idtf;
+}
+
+
+void SetIdentifierAST::setLeftSeparator(QString sep)
+{
+   Q_ASSERT(!sep.isEmpty());
+   Q_ASSERT_X(mLeftSep.isEmpty(),"","mLeftSep already defined");
+
+    if(!sep.isEmpty() && mLeftSep.isEmpty())
+        mLeftSep = sep;
+}
+
+
+void SetIdentifierAST::setRightSeparator(QString sep)
+{
+    Q_ASSERT(!sep.isEmpty());
+    Q_ASSERT_X(mRightSep.isEmpty(),"","mRightSep already defined");
+
+     if(!sep.isEmpty() && mRightSep.isEmpty())
+         mRightSep = sep;
+}
+
+
+void SetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
+{
+    Q_CHECK_PTR(sentence);
+
+    if(sentence)
+        mSetSentenceLst.append(sentence);
+}
+
+
+SetIdentifierAST* SetIdentifierAST::operator <<(ObjSepWAttrListWIdtfWithInt *sentence)
+{
+    Q_CHECK_PTR(sentence);
+
+    if(sentence)
+        mSetSentenceLst.append(sentence);
+
+    return this;
+}
+
 
 
 //***********************************************************************
 
-OSetIdentifierAST::OSetIdentifierAST()
-{
+//OSetIdentifierAST::OSetIdentifierAST()
+//{
 
-}
+//}
 
-//OSetIdentifierAST::OSetIdentifierAST(AttributesListAST *attrLst, IdentifierWithInternalAST *idtf)
+//OSetIdentifierAST::~OSetIdentifierAST()
+//{
+//    qDeleteAll(mSetSentenceLst.begin(), mSetSentenceLst.end());
+//    mSetSentenceLst.clear();
+//}
+
+//void OSetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
 //{
 //    Q_CHECK_PTR(attrLst);
 //    Q_CHECK_PTR(idtf);
@@ -412,19 +507,83 @@ OSetIdentifierAST::OSetIdentifierAST()
 //        mSetSentenceLst.append(new OSetIdentifierSentence(attrLst,idtf));
 //}
 
+
+OSetIdentifierAST::OSetIdentifierAST():
+    mAttrLst(NULL), mIdtf(NULL)
+{
+
+}
+
 OSetIdentifierAST::~OSetIdentifierAST()
 {
     qDeleteAll(mSetSentenceLst.begin(), mSetSentenceLst.end());
     mSetSentenceLst.clear();
+
+    if(mAttrLst)
+        delete mAttrLst;
+    if(mIdtf)
+        delete mIdtf;
 }
 
-void OSetIdentifierAST::addSentence(AttributesListAST *attrLst, IdentifierWithInternalAST *idtf)
-{
-    Q_CHECK_PTR(attrLst);
-    Q_CHECK_PTR(idtf);
 
-    if(attrLst && idtf)
-        mSetSentenceLst.append(new OSetIdentifierSentence(attrLst,idtf));
+void OSetIdentifierAST::setAttributeList(AttributesListAST *lst)
+{
+    Q_CHECK_PTR(lst);
+    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
+
+    if(lst)
+        mAttrLst = lst;
+}
+
+
+
+void OSetIdentifierAST::setIdentifier(IdentifierWithInternalAST *idtf)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(mIdtf == NULL,"","mIdtf already defined");
+
+    if(idtf && !mIdtf)
+        mIdtf = idtf;
+}
+
+
+void OSetIdentifierAST::setLeftSeparator(QString sep)
+{
+   Q_ASSERT(!sep.isEmpty());
+   Q_ASSERT_X(mLeftSep.isEmpty(),"","mLeftSep already defined");
+
+    if(!sep.isEmpty() && mLeftSep.isEmpty())
+        mLeftSep = sep;
+}
+
+
+void OSetIdentifierAST::setRightSeparator(QString sep)
+{
+    Q_ASSERT(!sep.isEmpty());
+    Q_ASSERT_X(mRightSep.isEmpty(),"","mRightSep already defined");
+
+     if(!sep.isEmpty() && mRightSep.isEmpty())
+         mRightSep = sep;
+}
+
+
+void OSetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
+{
+    Q_CHECK_PTR(sentence);
+
+    if(sentence)
+        mSetSentenceLst.append(sentence);
+}
+
+
+OSetIdentifierAST* OSetIdentifierAST::operator <<(ObjSepWAttrListWIdtfWithInt *sentence)
+{
+    Q_CHECK_PTR(sentence);
+
+    if(sentence)
+        mSetSentenceLst.append(sentence);
+
+    return this;
 }
 
 
@@ -451,7 +610,7 @@ AttributesListAST::AttributesListAST()
 
 }
 
-AttributesListAST::AttributesListAST(SimpleIdentifierWAttributeSeparatorAST *idtf)
+AttributesListAST::AttributesListAST(SimpleIdtfrWAttrSepAST *idtf)
 {
     Q_CHECK_PTR(idtf);
 
@@ -466,7 +625,7 @@ AttributesListAST::~AttributesListAST()
 }
 
 
-void AttributesListAST::addIdentifier(SimpleIdentifierWAttributeSeparatorAST *idtf)
+void AttributesListAST::addIdentifier(SimpleIdtfrWAttrSepAST *idtf)
 {
     Q_CHECK_PTR(idtf);
 
@@ -474,7 +633,7 @@ void AttributesListAST::addIdentifier(SimpleIdentifierWAttributeSeparatorAST *id
         mAttrListSentenceLst.append(idtf);
 }
 
-AttributesListAST* AttributesListAST::operator <<(SimpleIdentifierWAttributeSeparatorAST *idtf)
+AttributesListAST* AttributesListAST::operator <<(SimpleIdtfrWAttrSepAST *idtf)
 {
     Q_CHECK_PTR(idtf);
 
@@ -554,13 +713,6 @@ InternalSentenceListAST::InternalSentenceListAST()
 
 }
 
-InternalSentenceListAST::InternalSentenceListAST(InternalSentenceAST *sentence)
-{
-    Q_CHECK_PTR(sentence);
-
-    if(sentence)
-        mInternalLst.append(sentence);
-}
 
 InternalSentenceListAST::~InternalSentenceListAST()
 {
@@ -568,7 +720,7 @@ InternalSentenceListAST::~InternalSentenceListAST()
     mInternalLst.clear();
 }
 
-void InternalSentenceListAST::addSentence(InternalSentenceAST *sentence)
+void InternalSentenceListAST::addSentence(IntSentenceWSentSep *sentence)
 {
     Q_CHECK_PTR(sentence);
 
@@ -576,7 +728,7 @@ void InternalSentenceListAST::addSentence(InternalSentenceAST *sentence)
         mInternalLst.append(sentence);
 }
 
-InternalSentenceListAST* InternalSentenceListAST::operator <<(InternalSentenceAST *sentence)
+InternalSentenceListAST* InternalSentenceListAST::operator <<(IntSentenceWSentSep *sentence)
 {
     Q_CHECK_PTR(sentence);
 
@@ -584,6 +736,24 @@ InternalSentenceListAST* InternalSentenceListAST::operator <<(InternalSentenceAS
         mInternalLst.append(sentence);
 
     return this;
+}
+
+void InternalSentenceListAST::setLeftInternalSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mLeftIntSep.isEmpty(),"","mLeftIntSep already defined");
+
+    if(!separator.isEmpty() && mLeftIntSep.isEmpty())
+        mLeftIntSep = separator;
+}
+
+void InternalSentenceListAST::setRigthInternalSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mRightIntSep.isEmpty(),"","mRightIntSep already defined");
+
+    if(!separator.isEmpty() && mRightIntSep.isEmpty())
+        mRightIntSep = separator;
 }
 
 //***********************************************************************
@@ -646,27 +816,23 @@ void InternalSentenceAST::setObjectList(ObjectListAST *lst)
 //***********************************************************************
 
 
-ObjectListAST::ObjectListAST()
+ObjectListAST::ObjectListAST():
+    mIdtfWithInt(NULL)
 {
 
-}
-
-ObjectListAST::ObjectListAST(IdentifierWithInternalAST *idtf)
-{
-    Q_CHECK_PTR(idtf);
-
-    if(idtf)
-        mIdtfWithIntLst.append(idtf);
 }
 
 ObjectListAST::~ObjectListAST()
 {
+    if(mIdtfWithInt)
+        delete mIdtfWithInt;
+
     qDeleteAll(mIdtfWithIntLst.begin(),mIdtfWithIntLst.end());
     mIdtfWithIntLst.clear();
 }
 
 
-void ObjectListAST::addIdentifier(IdentifierWithInternalAST *idtf)
+void ObjectListAST::addIdentifier(ObjSepWIdtfWithInt *idtf)
 {
     Q_CHECK_PTR(idtf);
 
@@ -674,7 +840,7 @@ void ObjectListAST::addIdentifier(IdentifierWithInternalAST *idtf)
         mIdtfWithIntLst.append(idtf);
 }
 
-ObjectListAST* ObjectListAST::operator <<(IdentifierWithInternalAST *idtf)
+ObjectListAST* ObjectListAST::operator <<(ObjSepWIdtfWithInt *idtf)
 {
     Q_CHECK_PTR(idtf);
 
@@ -685,16 +851,26 @@ ObjectListAST* ObjectListAST::operator <<(IdentifierWithInternalAST *idtf)
 }
 
 
+
+void ObjectListAST::setIdentifierWithInt(IdentifierWithInternalAST *idtf)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(mIdtfWithInt == NULL,"","mIdtfWithInt already defined");
+
+    if(idtf && !mIdtfWithInt)
+        mIdtfWithInt = idtf;
+}
+
 //***********************************************************************
 
-SimpleIdentifierWAttributeSeparatorAST::SimpleIdentifierWAttributeSeparatorAST():
+SimpleIdtfrWAttrSepAST::SimpleIdtfrWAttrSepAST():
     mIdentifier(NULL)
 {
 
 }
 
 
-SimpleIdentifierWAttributeSeparatorAST::SimpleIdentifierWAttributeSeparatorAST(SimpleIdentifierAST *idtf, QString attrSep):
+SimpleIdtfrWAttrSepAST::SimpleIdtfrWAttrSepAST(SimpleIdentifierAST *idtf, QString attrSep):
     mIdentifier(NULL)
 {
     Q_CHECK_PTR(idtf);
@@ -705,13 +881,13 @@ SimpleIdentifierWAttributeSeparatorAST::SimpleIdentifierWAttributeSeparatorAST(S
 }
 
 
-SimpleIdentifierWAttributeSeparatorAST::~SimpleIdentifierWAttributeSeparatorAST()
+SimpleIdtfrWAttrSepAST::~SimpleIdtfrWAttrSepAST()
 {
     if(mIdentifier)
         delete mIdentifier;
 }
 
-void SimpleIdentifierWAttributeSeparatorAST::setIdentifier(SimpleIdentifierAST *idtf)
+void SimpleIdtfrWAttrSepAST::setIdentifier(SimpleIdentifierAST *idtf)
 {
    Q_CHECK_PTR(idtf);
 
@@ -723,7 +899,7 @@ void SimpleIdentifierWAttributeSeparatorAST::setIdentifier(SimpleIdentifierAST *
 
 
 
-void SimpleIdentifierWAttributeSeparatorAST::setAttributeSeparator(QString attrSep)
+void SimpleIdtfrWAttrSepAST::setAttributeSeparator(QString attrSep)
 {
     Q_ASSERT(attrSep.isEmpty());
     Q_ASSERT_X(mAttrSep.isEmpty(),"","mAttrSep already defined");
@@ -732,6 +908,158 @@ void SimpleIdentifierWAttributeSeparatorAST::setAttributeSeparator(QString attrS
         mAttrSep = attrSep;
 
 }
+
+//***********************************************************************
+
+
+ObjSepWAttrListWIdtfWithInt::ObjSepWAttrListWIdtfWithInt():
+    mAttrLst(NULL), mIdtfWithInt(NULL)
+{
+
+}
+
+ObjSepWAttrListWIdtfWithInt::ObjSepWAttrListWIdtfWithInt(QString separator, AttributesListAST *lst, IdentifierWithInternalAST *idtf):
+    mAttrLst(NULL), mIdtfWithInt(NULL)
+{
+    Q_CHECK_PTR(idtf);
+    Q_CHECK_PTR(lst);
+    Q_ASSERT(!separator.isEmpty());
+
+    mAttrLst = lst;
+    mIdtfWithInt = idtf;
+    mObjSep = separator;
+}
+
+
+ObjSepWAttrListWIdtfWithInt::~ObjSepWAttrListWIdtfWithInt()
+{
+    if(mIdtfWithInt)
+        delete mIdtfWithInt;
+    if(mAttrLst)
+        delete mAttrLst;
+}
+
+
+void ObjSepWAttrListWIdtfWithInt::setAttributeList(AttributesListAST *lst)
+{
+    Q_CHECK_PTR(lst);
+    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
+
+    if(lst && !mAttrLst)
+        mAttrLst = lst;
+}
+
+
+void ObjSepWAttrListWIdtfWithInt::setIdentifier(IdentifierWithInternalAST *idtf)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(mIdtfWithInt == NULL,"","mIdtfWithInt already defined");
+
+    if(idtf && !mIdtfWithInt)
+        mIdtfWithInt = idtf;
+}
+
+
+void ObjSepWAttrListWIdtfWithInt::setSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mObjSep.isEmpty(),"","mObjSep already defined");
+
+
+    if(!separator.isEmpty() && mObjSep.isEmpty())
+        mObjSep = separator;
+}
+
+//***********************************************************************
+
+IntSentenceWSentSep::IntSentenceWSentSep():
+    mIntSentence(NULL)
+{
+
+}
+
+IntSentenceWSentSep::IntSentenceWSentSep(InternalSentenceAST *sentence, QString septSep):
+    mIntSentence(NULL)
+{
+    Q_CHECK_PTR(sentence);
+    Q_ASSERT(!septSep.isEmpty());
+
+    mSentSep = septSep;
+    mIntSentence = sentence;
+}
+
+IntSentenceWSentSep::~IntSentenceWSentSep()
+{
+    if(mIntSentence)
+        delete mIntSentence;
+}
+
+
+void IntSentenceWSentSep::setInternalSentence(InternalSentenceAST *sentence)
+{
+    Q_CHECK_PTR(sentence);
+    Q_ASSERT_X(mIntSentence == NULL,"","mIntSentence already defined");
+
+    if(sentence)
+        mIntSentence = sentence;
+}
+
+void IntSentenceWSentSep::setSentenceSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(!mSentSep.isEmpty(),"","mSentSep already defined");
+
+    if(!separator.isEmpty() && mSentSep.isEmpty())
+        mSentSep = separator;
+}
+
+
+//***********************************************************************
+
+ObjSepWIdtfWithInt::ObjSepWIdtfWithInt():
+    mIdtwWithInt(NULL)
+{
+
+}
+
+ObjSepWIdtfWithInt::ObjSepWIdtfWithInt(IdentifierWithInternalAST *idtf, QString objSep):
+    mIdtwWithInt(NULL)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT(!objSep.isEmpty());
+
+    mIdtwWithInt = idtf;
+    mObjSep = objSep;
+}
+
+
+ObjSepWIdtfWithInt::~ObjSepWIdtfWithInt()
+{
+    if(mIdtwWithInt)
+        delete mIdtwWithInt;
+}
+
+
+void ObjSepWIdtfWithInt::setIdentifierWithInternal(IdentifierWithInternalAST *idtf)
+{
+    Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(mIdtwWithInt == NULL,"","mIdtwWithInt already defined");
+
+    if(idtf && !mIdtwWithInt)
+        mIdtwWithInt = idtf;
+}
+
+
+void ObjSepWIdtfWithInt::setObjectSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mObjSep.isEmpty(),"","mObjSep already defined");
+
+    if(!separator.isEmpty() && mObjSep.isEmpty())
+        mObjSep = separator;
+}
+
+
 
 //***********************************************************************
 
