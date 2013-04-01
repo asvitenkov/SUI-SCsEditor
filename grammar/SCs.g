@@ -20,6 +20,12 @@ options
    using namespace SCsAST;
    
    #define RECOVER if(mNeedRecover) this->recover();
+   #define IFNR RECOVER
+   #define SET_NEED_RECOVER(value) mNeedRecover = value;
+   #define SNR(value) SET_NEED_RECOVER(value)
+   #define SNRT SET_NEED_RECOVER(true)
+   #define SNRF SET_NEED_RECOVER(false)
+   #define IFNRR if(mNeedRecover) return retPtr;
 }
 
 
@@ -47,8 +53,11 @@ syntax
   //rule: ( sentence_sentsep )*
 	@init
 		{
+
+		  mNeedRecover = false;
 		  SyntaxAST* syntax = new SyntaxAST();
 		}
+	@after {  SNRF  }
 : 
       ( a = sentence_sentsep  {if(!this->hasException()) syntax->addSentence($a.retPtr); }  )*  EOF//attention
 ;
@@ -58,21 +67,27 @@ sentence_sentsep returns[SentenceWithSeparator* retPtr]
   @init
 		{
 		    retPtr = new SentenceWithSeparator();
-		}  
+		}
+	@after
+	{
+	  SNRT
+	}  
 :
-      a = sentence {retPtr->setSentence($a.retPtr);                         }
-      b = SENTSEP  {retPtr->setSeparator(QString::fromStdString($b.text));  } 
+    {SNRF}  a = sentence { IFNRR retPtr->setSentence($a.retPtr);                        SNRF }
+    {SNRF}  b = SENTSEP  { IFNRR retPtr->setSeparator(QString::fromStdString($b.text)); SNRF } 
 ;
 
 sentence  returns [SentenceAST* retPtr]
   //rule: sentence_lv1 | sentence_lv23456
 	@init
 		{
+		  SNRT
 		  retPtr = new SentenceAST();
 		}
+	@after {  SNRF  }
 : 
-          a = sentence_lv1        {retPtr->addSentenceLvl1($a.retPtr);        }
-      |   b = sentence_lv23456    {retPtr->addSentenceLv234561($b.retPtr);    }
+        {SNRF}  a = sentence_lv1        {IFNRR retPtr->addSentenceLvl1($a.retPtr);        SNRF}
+      | {SNRF}  b = sentence_lv23456    {IFNRR retPtr->addSentenceLv234561($b.retPtr);    SNRF}
 ;
 
 
@@ -82,6 +97,7 @@ sentence_lv23456 returns [SentenceLv234561AST* retPtr]
 		{
 		  retPtr = new SentenceLv234561AST();
 		}
+	@after {  SNRF  }
 : 
       a = idtf            {retPtr->setIdentifier($a.retPtr);                       }
       b = CONNECTORS      {retPtr->setConnector(QString::fromStdString($b.text));  } 
