@@ -12,7 +12,7 @@ namespace SCsAST{
 
 
 class AST;
-class RootAST;
+class SyntaxAST;
 class SentenceAST;
 class SentenceLvl1AST;
 class SentenceLv234561AST;
@@ -33,9 +33,10 @@ class SimpleIdtfrWAttrSepAST;
 class ObjSepWAttrListWIdtfWithInt;
 class IntSentenceWSentSep;
 class ObjSepWIdtfWithInt;
+class SentenceWithSeparator;
 
 enum _ASTNodeType{
-    ROOT                    = 1
+     SYNTAX                    = 1
     ,SENTENCE
     ,SENTENCE_LVL1
     ,SENTENCE_LVL23456
@@ -56,6 +57,7 @@ enum _ASTNodeType{
     ,OBJSEP_W_ATTR_LIST_W_IDTF_WITH_INT
     ,INT_SENTENCE_W_SENT_SEP
     ,OBJ_SEP_W_IDTF_WITH_INT
+    ,SENTANCE_WITH_SEPARATOR
 };
 
 typedef _ASTNodeType ASTNodeType;
@@ -71,26 +73,42 @@ protected:
 
 
 
-class RootAST: public AST
+class SyntaxAST: public AST
 {
 public:
-    RootAST();
-    virtual ~RootAST();
-    explicit RootAST(SentenceAST *sentence);
+    SyntaxAST();
+    virtual ~SyntaxAST();
+//    explicit SyntaxAST(SentenceAST *sentence);
 
-    ASTNodeType type() { return ROOT; }
+    ASTNodeType type() { return SYNTAX; }
 
-    void addSentence(SentenceAST *sentence);
-    RootAST* operator <<(SentenceAST *sentence);
+    void addSentence(SentenceWithSeparator *sentence);
 private:
-    QList<SentenceAST*> mSentenceLst;
+    QList<SentenceWithSeparator*> mSentenceLst;
 };
+
+class SentenceWithSeparator: public AST
+{
+public:
+    SentenceWithSeparator();
+    virtual ~SentenceWithSeparator();
+
+    void setSentence(SentenceAST *sentence);
+    void setSeparator(QString separator);
+
+    NodeType(SENTANCE_WITH_SEPARATOR)
+private:
+    SentenceAST* mSentence;
+    QString mSeparator;
+};
+
 
 class SentenceAST: public AST
 {
 public:
-    explicit SentenceAST(SentenceLvl1AST *sentence);
-    explicit SentenceAST(SentenceLv234561AST *sentence);
+    SentenceAST();
+    void addSentenceLvl1(SentenceLvl1AST *sentence);
+    void addSentenceLv234561(SentenceLv234561AST *sentence);
     virtual ~SentenceAST();
 
     NodeType(SENTENCE)
@@ -163,7 +181,8 @@ private:
 class IdentifierAST: public AST
 {
 public:
-    explicit IdentifierAST(AnyIdentifierAST *idtf);
+    IdentifierAST();
+    void setIdentifier(AnyIdentifierAST *idtf);
     virtual ~IdentifierAST();
 
     NodeType(IDENTIFIER)
@@ -196,22 +215,24 @@ private:
 class AnyIdentifierAST: public AST
 {
 public:
-    explicit AnyIdentifierAST(SimpleIdentifierAST *idtf);
-    explicit AnyIdentifierAST(QString content);
-    explicit AnyIdentifierAST(TripleAST *triple);
-    explicit AnyIdentifierAST(SetIdentifierAST *setIdtf);
-    explicit AnyIdentifierAST(OSetIdentifierAST *osetIdtf);
-    explicit AnyIdentifierAST(AliasAST *alias);
+    AnyIdentifierAST();
+    void setSimpleIdentifier(SimpleIdentifierAST* idtf);
+    void setContent(QString content);
+    void setTriple(TripleAST* triple);
+    void setSetIdentifier(SetIdentifierAST* setIdtf);
+    void setOSetIdentifier(OSetIdentifierAST* osetIdtf);
+    void setAlias(AliasAST* alias);
     virtual ~AnyIdentifierAST();
 
 
     NodeType(ANY_IDENTIFIER)
 private:
+    bool                 mIsDefine;
     SimpleIdentifierAST *mSimplyIdtf;
-    QString             mContent;
+    QString              mContent;
     TripleAST           *mTriple;
     SetIdentifierAST    *mSetIdtf;
-    OSetIdentifierAST    *mOSetIdtf;
+    OSetIdentifierAST   *mOSetIdtf;
     AliasAST            *mAlias;
 };
 
@@ -246,7 +267,6 @@ public:
     void setAttributeList(AttributesListAST *lst);
     void setIdentifier(IdentifierWithInternalAST *idtf);
     void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
-    SetIdentifierAST* operator <<(ObjSepWAttrListWIdtfWithInt*);
 
     NodeType(SET_IDENTIFIER)
 private:
@@ -268,7 +288,6 @@ public:
     void setAttributeList(AttributesListAST *lst);
     void setIdentifier(IdentifierWithInternalAST *idtf);
     void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
-    OSetIdentifierAST* operator <<(ObjSepWAttrListWIdtfWithInt*);
 
     NodeType(OSET_IDENTIFIER)
 private:
@@ -282,8 +301,9 @@ private:
 class AliasAST: public AST
 {
 public:
-    AliasAST(QString alias);
+    AliasAST();
     virtual ~AliasAST();
+    void setAlias(QString alias);
 
     NodeType(ALIAS)
 private:
@@ -299,7 +319,6 @@ public:
     virtual ~AttributesListAST();
 
     void addIdentifier(SimpleIdtfrWAttrSepAST *idtf);
-    AttributesListAST* operator <<(SimpleIdtfrWAttrSepAST *idtf);
 
     NodeType(ATRIBUTES_LIST)
 private:
@@ -343,7 +362,8 @@ private:
 class InternalAST: public AST
 {
 public:
-    explicit InternalAST(InternalSentenceListAST *lst);
+    InternalAST();
+    void setInternalSentenceList(InternalSentenceListAST *lst);
     virtual ~InternalAST();
 
     NodeType(INTERNAL)
@@ -361,7 +381,6 @@ public:
     void setLeftInternalSeparator(QString separator);
     void setRigthInternalSeparator(QString separator);
     void addSentence(IntSentenceWSentSep *sentence);
-    InternalSentenceListAST* operator <<(IntSentenceWSentSep *sentence);
 
     NodeType(INTERNAL_SENTENCE_LIST)
 private:
@@ -400,7 +419,6 @@ public:
     void setIdentifierWithInt(IdentifierWithInternalAST *idtf);
 
     void addIdentifier(ObjSepWIdtfWithInt *idtf);
-    ObjectListAST* operator <<(ObjSepWIdtfWithInt*);
 
 
     NodeType(OBJECT_LIST)

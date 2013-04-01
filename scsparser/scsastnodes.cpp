@@ -4,36 +4,27 @@ using namespace SCsAST;
 
 //***********************************************************************
 
-RootAST::RootAST()
+SyntaxAST::SyntaxAST()
 {
 
 }
 
-RootAST::~RootAST()
+SyntaxAST::~SyntaxAST()
 {
     qDeleteAll(mSentenceLst.begin(), mSentenceLst.end());
     mSentenceLst.clear();
 }
 
-RootAST::RootAST(SentenceAST *sentence)
-{
-    Q_CHECK_PTR(sentence);
+//SyntaxAST::SyntaxAST(SentenceAST *sentence)
+//{
+//    Q_CHECK_PTR(sentence);
 
-    if(sentence)
-        mSentenceLst.append(sentence);
-}
+//    if(sentence)
+//        mSentenceLst.append(sentence);
+//}
 
-RootAST* RootAST::operator <<(SentenceAST *sentence)
-{
-    Q_CHECK_PTR(sentence);
 
-    if(sentence)
-        mSentenceLst.append(sentence);
-
-    return this;
-}
-
-void RootAST::addSentence(SentenceAST *sentence)
+void SyntaxAST::addSentence(SentenceWithSeparator *sentence)
 {
     Q_CHECK_PTR(sentence);
 
@@ -44,18 +35,32 @@ void RootAST::addSentence(SentenceAST *sentence)
 
 //***********************************************************************
 
-SentenceAST::SentenceAST(SentenceLv234561AST *sentence):
+SentenceAST::SentenceAST():
     mSentenceLvl1(NULL), mSentenceLvl23456(NULL)
 {
-    Q_CHECK_PTR(sentence);
-    mSentenceLvl23456 = sentence;
+
 }
 
-SentenceAST::SentenceAST(SentenceLvl1AST *sentence):
-    mSentenceLvl1(NULL), mSentenceLvl23456(NULL)
+void SentenceAST::addSentenceLv234561(SentenceLv234561AST *sentence)
 {
     Q_CHECK_PTR(sentence);
-    mSentenceLvl1 = sentence;
+    Q_ASSERT_X(!mSentenceLvl23456,"","mSentenceLvl23456 already defined");
+
+    Q_ASSERT_X(!mSentenceLvl23456 && !mSentenceLvl1,"","variable already defined");
+
+    if(!mSentenceLvl23456 && !mSentenceLvl1)
+        mSentenceLvl23456 = sentence;
+}
+
+void SentenceAST::addSentenceLvl1(SentenceLvl1AST *sentence)
+{
+    Q_CHECK_PTR(sentence);
+    Q_ASSERT_X(!mSentenceLvl1,"","mSentenceLvl1 already defined");
+
+    Q_ASSERT_X(!mSentenceLvl23456 && !mSentenceLvl1,"","variable already defined");
+
+    if(!mSentenceLvl23456 && !mSentenceLvl1)
+        mSentenceLvl1 = sentence;
 }
 
 SentenceAST::~SentenceAST()
@@ -66,6 +71,39 @@ SentenceAST::~SentenceAST()
     if(mSentenceLvl23456)
         delete mSentenceLvl23456;
 }
+
+//***********************************************************************
+
+SentenceWithSeparator::SentenceWithSeparator():
+    mSentence(NULL)
+{
+
+}
+
+SentenceWithSeparator::~SentenceWithSeparator()
+{
+    if(mSentence)
+        delete mSentence;
+}
+
+void SentenceWithSeparator::setSentence(SentenceAST *sentence)
+{
+    Q_ASSERT_X(!mSentence,"","mSentence already defined");
+    Q_CHECK_PTR(sentence);
+
+    if(sentence && !mSentence)
+        mSentence = sentence;
+}
+
+void SentenceWithSeparator::setSeparator(QString separator)
+{
+    Q_ASSERT(!separator.isEmpty());
+    Q_ASSERT_X(mSeparator.isEmpty(),"","mSeparator already defined");
+
+    if(!separator.isEmpty() && mSeparator.isEmpty())
+        mSeparator = separator;
+}
+
 
 //***********************************************************************
 
@@ -87,7 +125,7 @@ SentenceLvl1AST::~SentenceLvl1AST()
 
 void SentenceLvl1AST::setFirstIdentifier(SimpleIdentifierAST *idtf)
 {
-    Q_ASSERT_X(mFirstIdtf==NULL,"","mFirstIdtf already defined");
+    Q_ASSERT_X(!mFirstIdtf,"","mFirstIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mFirstIdtf)
@@ -96,7 +134,7 @@ void SentenceLvl1AST::setFirstIdentifier(SimpleIdentifierAST *idtf)
 
 void SentenceLvl1AST::setSecondIdentifier(SimpleIdentifierAST *idtf)
 {
-    Q_ASSERT_X(mSecondIdtf==NULL,"","mSecondIdtf already defined");
+    Q_ASSERT_X(!mSecondIdtf,"","mSecondIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mSecondIdtf)
@@ -107,7 +145,7 @@ void SentenceLvl1AST::setSecondIdentifier(SimpleIdentifierAST *idtf)
 
 void SentenceLvl1AST::setThirdIdentifier(SimpleIdentifierAST *idtf)
 {
-    Q_ASSERT_X(mThirdIdtf==NULL,"","mThirdIdtf already defined");
+    Q_ASSERT_X(!mThirdIdtf,"","mThirdIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mThirdIdtf)
@@ -180,7 +218,7 @@ SentenceLv234561AST::~SentenceLv234561AST()
 
 void SentenceLv234561AST::setIdentifier(IdentifierAST *idtf)
 {
-    Q_ASSERT_X(mIdentifier == NULL, "", "mIdentifier already defined");
+    Q_ASSERT_X(!mIdentifier , "", "mIdentifier already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mIdentifier)
@@ -192,14 +230,14 @@ void SentenceLv234561AST::setConnector(QString connector)
     Q_ASSERT_X(mConntector.isEmpty(), "", "mConntector already defined");
     Q_ASSERT(!connector.isEmpty());
 
-    if(connector.isEmpty() && !mConntector.isEmpty())
+    if(!connector.isEmpty() && mConntector.isEmpty())
         mConntector = connector;
 }
 
 
 void SentenceLv234561AST::setAttributeList(AttributesListAST *attrLst)
 {
-    Q_ASSERT_X(mAttributeList == NULL, "", "mAttributeList already defined");
+    Q_ASSERT_X(!mAttributeList , "", "mAttributeList already defined");
     Q_CHECK_PTR(attrLst);
 
     if(attrLst && !mAttributeList)
@@ -209,7 +247,7 @@ void SentenceLv234561AST::setAttributeList(AttributesListAST *attrLst)
 
 void SentenceLv234561AST::setObjectList(ObjectListAST *objLst)
 {
-    Q_ASSERT_X(mObjectList == NULL, "", "mObjectList already defined");
+    Q_ASSERT_X(!mObjectList , "", "mObjectList already defined");
     Q_CHECK_PTR(objLst);
 
     if(objLst && !mObjectList)
@@ -258,11 +296,19 @@ void SimpleIdentifierAST::setUrl(QString url)
 //***********************************************************************
 
 
-IdentifierAST::IdentifierAST(AnyIdentifierAST *idtf):
+IdentifierAST::IdentifierAST():
     mIdentidier(NULL)
 {
+
+}
+
+void IdentifierAST::setIdentifier(AnyIdentifierAST *idtf)
+{
     Q_CHECK_PTR(idtf);
-    mIdentidier = idtf;
+    Q_ASSERT_X(!mIdentidier ,"","mIdentidier already defined");
+
+    if(idtf && !mIdentidier)
+        mIdentidier = idtf;
 }
 
 IdentifierAST::~IdentifierAST()
@@ -292,7 +338,7 @@ TripleAST::~TripleAST()
 
 void TripleAST::setFirstIdentifier(IdentifierAST *idtf)
 {
-    Q_ASSERT_X(mFirstIdtf == NULL,"","mFirstIdtf already defined");
+    Q_ASSERT_X(!mFirstIdtf ,"","mFirstIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mFirstIdtf)
@@ -301,7 +347,7 @@ void TripleAST::setFirstIdentifier(IdentifierAST *idtf)
 
 void TripleAST::setSecondIdentifier(IdentifierAST *idtf)
 {
-    Q_ASSERT_X(mSecondIdtf == NULL,"","mSecondIdtf already defined");
+    Q_ASSERT_X(!mSecondIdtf ,"","mSecondIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mSecondIdtf)
@@ -339,52 +385,82 @@ void TripleAST::setContent(QString content)
 //***********************************************************************
 
 
-AnyIdentifierAST::AnyIdentifierAST(AliasAST *alias):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+AnyIdentifierAST::AnyIdentifierAST():
+    mIsDefine(false), mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+{
+
+}
+
+void AnyIdentifierAST::setAlias(AliasAST *alias)
 {
     Q_CHECK_PTR(alias);
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mAlias = alias;
+    if(alias && !mAlias)
+    {
+        mAlias = alias;
+        mIsDefine = true;
+    }
 }
 
-AnyIdentifierAST::AnyIdentifierAST(OSetIdentifierAST *osetIdtf):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+void AnyIdentifierAST::setOSetIdentifier(OSetIdentifierAST *osetIdtf)
 {
     Q_CHECK_PTR(osetIdtf);
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mOSetIdtf = osetIdtf;
+    if(osetIdtf && !mOSetIdtf)
+    {
+        mOSetIdtf = osetIdtf;
+        mIsDefine = true;
+    }
 }
 
-AnyIdentifierAST::AnyIdentifierAST(QString content):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+void AnyIdentifierAST::setContent(QString content)
 {
     Q_ASSERT(!content.isEmpty());
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mContent = content;
+    if(!content.isEmpty() && mContent.isEmpty())
+    {
+        mIsDefine = true;
+        mContent = content;
+    }
 }
 
-AnyIdentifierAST::AnyIdentifierAST(SetIdentifierAST *setIdtf):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+void AnyIdentifierAST::setSetIdentifier(SetIdentifierAST *setIdtf)
 {
     Q_CHECK_PTR(setIdtf);
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mSetIdtf = setIdtf;
+    if(setIdtf && !mSetIdtf)
+    {
+        mSetIdtf = setIdtf;
+        mIsDefine = true;
+    }
 }
 
-AnyIdentifierAST::AnyIdentifierAST(SimpleIdentifierAST *idtf):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+void AnyIdentifierAST::setSimpleIdentifier(SimpleIdentifierAST *idtf)
 {
     Q_CHECK_PTR(idtf);
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mSimplyIdtf = idtf;
+    if(idtf && !mSimplyIdtf)
+    {
+        mSimplyIdtf = idtf;
+        mIsDefine = true;
+    }
 }
 
-AnyIdentifierAST::AnyIdentifierAST(TripleAST *triple):
-    mSimplyIdtf(NULL), mTriple(NULL), mSetIdtf(NULL), mOSetIdtf(NULL), mAlias(NULL)
+void AnyIdentifierAST::setTriple(TripleAST *triple)
 {
     Q_CHECK_PTR(triple);
+    Q_ASSERT_X(!mIsDefine,"","variable already defined");
 
-    mTriple = triple;
+    if(triple && !mTriple)
+    {
+        mTriple = triple;
+        mIsDefine = true;
+    }
 }
 
 AnyIdentifierAST::~AnyIdentifierAST()
@@ -426,9 +502,9 @@ SetIdentifierAST::~SetIdentifierAST()
 void SetIdentifierAST::setAttributeList(AttributesListAST *lst)
 {
     Q_CHECK_PTR(lst);
-    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
+    Q_ASSERT_X(!mAttrLst ,"","mAttrLst already defined");
 
-    if(lst)
+    if(lst && !mAttrLst)
         mAttrLst = lst;
 }
 
@@ -437,7 +513,7 @@ void SetIdentifierAST::setAttributeList(AttributesListAST *lst)
 void SetIdentifierAST::setIdentifier(IdentifierWithInternalAST *idtf)
 {
     Q_CHECK_PTR(idtf);
-    Q_ASSERT_X(mIdtf == NULL,"","mIdtf already defined");
+    Q_ASSERT_X(!mIdtf ,"","mIdtf already defined");
 
     if(idtf && !mIdtf)
         mIdtf = idtf;
@@ -473,39 +549,7 @@ void SetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
 }
 
 
-SetIdentifierAST* SetIdentifierAST::operator <<(ObjSepWAttrListWIdtfWithInt *sentence)
-{
-    Q_CHECK_PTR(sentence);
-
-    if(sentence)
-        mSetSentenceLst.append(sentence);
-
-    return this;
-}
-
-
-
 //***********************************************************************
-
-//OSetIdentifierAST::OSetIdentifierAST()
-//{
-
-//}
-
-//OSetIdentifierAST::~OSetIdentifierAST()
-//{
-//    qDeleteAll(mSetSentenceLst.begin(), mSetSentenceLst.end());
-//    mSetSentenceLst.clear();
-//}
-
-//void OSetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
-//{
-//    Q_CHECK_PTR(attrLst);
-//    Q_CHECK_PTR(idtf);
-
-//    if(attrLst && idtf)
-//        mSetSentenceLst.append(new OSetIdentifierSentence(attrLst,idtf));
-//}
 
 
 OSetIdentifierAST::OSetIdentifierAST():
@@ -529,9 +573,9 @@ OSetIdentifierAST::~OSetIdentifierAST()
 void OSetIdentifierAST::setAttributeList(AttributesListAST *lst)
 {
     Q_CHECK_PTR(lst);
-    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
+    Q_ASSERT_X(!mAttrLst ,"","mAttrLst already defined");
 
-    if(lst)
+    if(lst && !mAttrLst)
         mAttrLst = lst;
 }
 
@@ -540,7 +584,7 @@ void OSetIdentifierAST::setAttributeList(AttributesListAST *lst)
 void OSetIdentifierAST::setIdentifier(IdentifierWithInternalAST *idtf)
 {
     Q_CHECK_PTR(idtf);
-    Q_ASSERT_X(mIdtf == NULL,"","mIdtf already defined");
+    Q_ASSERT_X(!mIdtf ,"","mIdtf already defined");
 
     if(idtf && !mIdtf)
         mIdtf = idtf;
@@ -575,31 +619,25 @@ void OSetIdentifierAST::addSentence(ObjSepWAttrListWIdtfWithInt *sentence)
         mSetSentenceLst.append(sentence);
 }
 
-
-OSetIdentifierAST* OSetIdentifierAST::operator <<(ObjSepWAttrListWIdtfWithInt *sentence)
-{
-    Q_CHECK_PTR(sentence);
-
-    if(sentence)
-        mSetSentenceLst.append(sentence);
-
-    return this;
-}
-
-
 //***********************************************************************
 
 
-AliasAST::AliasAST(QString alias)
+AliasAST::AliasAST()
 {
-    Q_ASSERT(!alias.isEmpty());
 
-    mAlias = alias;
 }
 
 AliasAST::~AliasAST()
 {
 
+}
+
+void AliasAST::setAlias(QString alias)
+{
+    Q_ASSERT(!alias.isEmpty());
+    Q_ASSERT_X(mAlias.isEmpty(),"","mAlias already defined");
+
+    mAlias = alias;
 }
 
 
@@ -633,17 +671,6 @@ void AttributesListAST::addIdentifier(SimpleIdtfrWAttrSepAST *idtf)
         mAttrListSentenceLst.append(idtf);
 }
 
-AttributesListAST* AttributesListAST::operator <<(SimpleIdtfrWAttrSepAST *idtf)
-{
-    Q_CHECK_PTR(idtf);
-
-    if(idtf)
-        mAttrListSentenceLst.append(idtf);
-
-    return this;
-}
-
-
 //***********************************************************************
 
 IdentifierWithInternalAST::IdentifierWithInternalAST():
@@ -673,7 +700,7 @@ IdentifierWithInternalAST::~IdentifierWithInternalAST()
 
 void IdentifierWithInternalAST::setIdentifier(IdentifierAST *idtf)
 {
-    Q_ASSERT_X(mIdtf == NULL,"","mIdtf already defined");
+    Q_ASSERT_X(!mIdtf ,"","mIdtf already defined");
     Q_CHECK_PTR(idtf);
 
     if(idtf && !mIdtf)
@@ -682,7 +709,7 @@ void IdentifierWithInternalAST::setIdentifier(IdentifierAST *idtf)
 
 void IdentifierWithInternalAST::setInternal(InternalAST *internal)
 {
-    Q_ASSERT_X(internal == NULL,"","mInternal already defined");
+    Q_ASSERT_X(internal ,"","mInternal already defined");
     Q_CHECK_PTR(internal);
 
     if(internal && !mInternal)
@@ -692,12 +719,10 @@ void IdentifierWithInternalAST::setInternal(InternalAST *internal)
 
 //***********************************************************************
 
-InternalAST::InternalAST(InternalSentenceListAST *lst):
+InternalAST::InternalAST():
     mInternalLst(NULL)
 {
-    Q_CHECK_PTR(lst);
 
-    mInternalLst = lst;
 }
 
 InternalAST::~InternalAST()
@@ -705,6 +730,15 @@ InternalAST::~InternalAST()
     if(mInternalLst)
         delete mInternalLst;
 }
+
+void InternalAST::setInternalSentenceList(InternalSentenceListAST *lst)
+{
+    Q_CHECK_PTR(lst);
+
+    if(lst && !mInternalLst)
+        mInternalLst = lst;
+}
+
 
 //***********************************************************************
 
@@ -728,15 +762,6 @@ void InternalSentenceListAST::addSentence(IntSentenceWSentSep *sentence)
         mInternalLst.append(sentence);
 }
 
-InternalSentenceListAST* InternalSentenceListAST::operator <<(IntSentenceWSentSep *sentence)
-{
-    Q_CHECK_PTR(sentence);
-
-    if(sentence)
-        mInternalLst.append(sentence);
-
-    return this;
-}
 
 void InternalSentenceListAST::setLeftInternalSeparator(QString separator)
 {
@@ -788,7 +813,7 @@ InternalSentenceAST::~InternalSentenceAST()
 void InternalSentenceAST::setAttributeList(AttributesListAST *lst)
 {
     Q_CHECK_PTR(lst);
-    Q_ASSERT_X(mAttributeList == NULL,"","mAttributeList already defined");
+    Q_ASSERT_X(!mAttributeList ,"","mAttributeList already defined");
 
     if(lst)
         mAttributeList = lst;
@@ -807,7 +832,7 @@ void InternalSentenceAST::setConnector(QString connector)
 void InternalSentenceAST::setObjectList(ObjectListAST *lst)
 {
     Q_CHECK_PTR(lst);
-    Q_ASSERT_X(mObjectList == NULL,"","mObjectList already defined");
+    Q_ASSERT_X(!mObjectList ,"","mObjectList already defined");
 
     if(lst && !mObjectList)
         mObjectList = lst;
@@ -840,22 +865,11 @@ void ObjectListAST::addIdentifier(ObjSepWIdtfWithInt *idtf)
         mIdtfWithIntLst.append(idtf);
 }
 
-ObjectListAST* ObjectListAST::operator <<(ObjSepWIdtfWithInt *idtf)
-{
-    Q_CHECK_PTR(idtf);
-
-    if(idtf)
-        mIdtfWithIntLst.append(idtf);
-
-    return this;
-}
-
-
 
 void ObjectListAST::setIdentifierWithInt(IdentifierWithInternalAST *idtf)
 {
     Q_CHECK_PTR(idtf);
-    Q_ASSERT_X(mIdtfWithInt == NULL,"","mIdtfWithInt already defined");
+    Q_ASSERT_X(!mIdtfWithInt ,"","mIdtfWithInt already defined");
 
     if(idtf && !mIdtfWithInt)
         mIdtfWithInt = idtf;
@@ -891,7 +905,7 @@ void SimpleIdtfrWAttrSepAST::setIdentifier(SimpleIdentifierAST *idtf)
 {
    Q_CHECK_PTR(idtf);
 
-   Q_ASSERT_X(mIdentifier == NULL,"","mIdentifier already defined");
+   Q_ASSERT_X(!mIdentifier ,"","mIdentifier already defined");
 
     if(idtf && !mIdentifier)
         mIdentifier = idtf;
@@ -901,7 +915,7 @@ void SimpleIdtfrWAttrSepAST::setIdentifier(SimpleIdentifierAST *idtf)
 
 void SimpleIdtfrWAttrSepAST::setAttributeSeparator(QString attrSep)
 {
-    Q_ASSERT(attrSep.isEmpty());
+    Q_ASSERT(!attrSep.isEmpty());
     Q_ASSERT_X(mAttrSep.isEmpty(),"","mAttrSep already defined");
 
     if(!attrSep.isEmpty() && mAttrSep.isEmpty())
@@ -943,7 +957,7 @@ ObjSepWAttrListWIdtfWithInt::~ObjSepWAttrListWIdtfWithInt()
 void ObjSepWAttrListWIdtfWithInt::setAttributeList(AttributesListAST *lst)
 {
     Q_CHECK_PTR(lst);
-    Q_ASSERT_X(mAttrLst == NULL,"","mAttrLst already defined");
+    Q_ASSERT_X(!mAttrLst ,"","mAttrLst already defined");
 
     if(lst && !mAttrLst)
         mAttrLst = lst;
@@ -953,7 +967,7 @@ void ObjSepWAttrListWIdtfWithInt::setAttributeList(AttributesListAST *lst)
 void ObjSepWAttrListWIdtfWithInt::setIdentifier(IdentifierWithInternalAST *idtf)
 {
     Q_CHECK_PTR(idtf);
-    Q_ASSERT_X(mIdtfWithInt == NULL,"","mIdtfWithInt already defined");
+    Q_ASSERT_X(!mIdtfWithInt ,"","mIdtfWithInt already defined");
 
     if(idtf && !mIdtfWithInt)
         mIdtfWithInt = idtf;
@@ -998,16 +1012,16 @@ IntSentenceWSentSep::~IntSentenceWSentSep()
 void IntSentenceWSentSep::setInternalSentence(InternalSentenceAST *sentence)
 {
     Q_CHECK_PTR(sentence);
-    Q_ASSERT_X(mIntSentence == NULL,"","mIntSentence already defined");
+    Q_ASSERT_X(!mIntSentence ,"","mIntSentence already defined");
 
-    if(sentence)
+    if(sentence && !mIntSentence)
         mIntSentence = sentence;
 }
 
 void IntSentenceWSentSep::setSentenceSeparator(QString separator)
 {
     Q_ASSERT(!separator.isEmpty());
-    Q_ASSERT_X(!mSentSep.isEmpty(),"","mSentSep already defined");
+    Q_ASSERT_X(mSentSep.isEmpty(),"","mSentSep already defined");
 
     if(!separator.isEmpty() && mSentSep.isEmpty())
         mSentSep = separator;
@@ -1043,7 +1057,7 @@ ObjSepWIdtfWithInt::~ObjSepWIdtfWithInt()
 void ObjSepWIdtfWithInt::setIdentifierWithInternal(IdentifierWithInternalAST *idtf)
 {
     Q_CHECK_PTR(idtf);
-    Q_ASSERT_X(mIdtwWithInt == NULL,"","mIdtwWithInt already defined");
+    Q_ASSERT_X(!mIdtwWithInt ,"","mIdtwWithInt already defined");
 
     if(idtf && !mIdtwWithInt)
         mIdtwWithInt = idtf;
