@@ -4,13 +4,14 @@ options
 {
     language = Cpp;
     backtrack = true;
-    k = 2;
+    k = 1;
 }
 
 @lexer::includes
 {
   #include <list>
 }
+
 
 @parser::includes
 {
@@ -28,9 +29,9 @@ options
    #define IFNRR if(mNeedRecover) return retPtr;
 }
 
-
 @lexer::namespace { SCsParserNS }
 @parser::namespace{ SCsParserNS }
+
 
 @lexer::traits 
 {
@@ -57,24 +58,23 @@ syntax
 		  mNeedRecover = false;
 		  SyntaxAST* syntax = new SyntaxAST();
 		}
-	@after {  SNRF  }
+	@after{ SNRF }
 : 
-      ( a = sentence_sentsep  {if(!this->hasException()) syntax->addSentence($a.retPtr); }  )*  EOF//attention
+      ( a = sentence_sentsep  { IFNR syntax->addSentence($a.retPtr); }  )*  EOF//attention
 ;
  
 sentence_sentsep returns[SentenceWithSeparator* retPtr]
   //rule: entence SENTSEP
   @init
 		{
+		    SNRT
 		    retPtr = new SentenceWithSeparator();
 		}
-	@after
-	{
-	  SNRT
-	}  
+	@after{ SNRF }	
+	 
 :
-    {SNRF}  a = sentence { IFNRR retPtr->setSentence($a.retPtr);                        SNRF }
-    {SNRF}  b = SENTSEP  { IFNRR retPtr->setSeparator(QString::fromStdString($b.text)); SNRF } 
+    {SNRT}  a = sentence { IFNRR retPtr->setSentence($a.retPtr);                      }
+    {SNRT}  b = SENTSEP  { SNRF retPtr->setSeparator(QString::fromStdString($b.text));} 
 ;
 
 sentence  returns [SentenceAST* retPtr]
@@ -84,10 +84,11 @@ sentence  returns [SentenceAST* retPtr]
 		  SNRT
 		  retPtr = new SentenceAST();
 		}
-	@after {  SNRF  }
+	@after{ SNRF }
+	
 : 
-        {SNRF}  a = sentence_lv1        {IFNRR retPtr->addSentenceLvl1($a.retPtr);        SNRF}
-      | {SNRF}  b = sentence_lv23456    {IFNRR retPtr->addSentenceLv234561($b.retPtr);    SNRF}
+        {SNRT}  a = sentence_lv1        {IFNRR retPtr->addSentenceLvl1($a.retPtr);        }
+      | {SNRT}  b = sentence_lv23456    {IFNRR retPtr->addSentenceLv234561($b.retPtr);    }
 ;
 
 
@@ -95,14 +96,16 @@ sentence_lv23456 returns [SentenceLv234561AST* retPtr]
   //rule: idtf CONNECTORS   attrsList objectList
 	@init
 		{
+		  SNRT
 		  retPtr = new SentenceLv234561AST();
 		}
-	@after {  SNRF  }
+	@after{ SNRF }
+	
 : 
-      a = idtf            {retPtr->setIdentifier($a.retPtr);                       }
-      b = CONNECTORS      {retPtr->setConnector(QString::fromStdString($b.text));  } 
-      c = attrsList       {retPtr->setAttributeList($c.retPtr);                    }
-      d = objectList      {retPtr->setObjectList($d.retPtr);                       }
+    {SNRT}  a = idtf            { IFNRR retPtr->setIdentifier($a.retPtr);                       }
+    {SNRT}  b = CONNECTORS      { SNRF  retPtr->setConnector(QString::fromStdString($b.text));  } 
+    {SNRT}  c = attrsList       { IFNRR retPtr->setAttributeList($c.retPtr);                    }
+    {SNRT}  d = objectList      { IFNRR retPtr->setObjectList($d.retPtr);                       }
 ;
 
 
@@ -111,14 +114,17 @@ sentence_lv1 returns [SentenceLvl1AST* retPtr]
   //rule: simpleIdtf TRIPLESEP simpleIdtf TRIPLESEP simpleIdtf 
 	@init
 		{
+		  SNRT
 		  retPtr = new SentenceLvl1AST();
 		}
+	@after{ SNRF }
+	
 : 
-        a = simpleIdtf    {retPtr->setFirstIdentifier($a.retPtr);                             }
-        b = TRIPLESEP     {retPtr->setFirstTripleSeparator(QString::fromStdString($b.text));  } 
-        c = simpleIdtf    {retPtr->setSecondIdentifier($c.retPtr);                            }
-        d = TRIPLESEP     {retPtr->setSecondTripleSeparator(QString::fromStdString($d.text)); }
-        e = simpleIdtf    {retPtr->setThirdIdentifier($e.retPtr);                             }
+     {SNRT}   a = simpleIdtf    { IFNRR retPtr->setFirstIdentifier($a.retPtr);                             }
+     {SNRT}   b = TRIPLESEP     { SNRF retPtr->setFirstTripleSeparator(QString::fromStdString($b.text));   } 
+     {SNRT}   c = simpleIdtf    { IFNRR retPtr->setSecondIdentifier($c.retPtr);                            }
+     {SNRT}   d = TRIPLESEP     { SNRF retPtr->setSecondTripleSeparator(QString::fromStdString($d.text));  }
+     {SNRT}   e = simpleIdtf    { IFNRR retPtr->setThirdIdentifier($e.retPtr);                             }
 ;
 
 
@@ -126,10 +132,12 @@ attrsList returns [AttributesListAST* retPtr]
   // rule: ( simpleIdtf_attrsep )*
 	@init
 		{
+		  SNRT
 		  retPtr = new AttributesListAST();
 		}
+	@after{ SNRF }
 :  
-      ( a = simpleIdtf_attrsep  {retPtr->addIdentifier($a.retPtr); } )* //attention
+      ( {SNRT} a = simpleIdtf_attrsep  {IFNRR retPtr->addIdentifier($a.retPtr); } )* //attention
 ;
 
 
@@ -137,11 +145,13 @@ simpleIdtf_attrsep returns[SimpleIdtfrWAttrSepAST *retPtr]
   //rule: simpleIdtf ATTRSEP
   @init
 	  {
+	    SNRT
 	    retPtr = new SimpleIdtfrWAttrSepAST();
 	  }
+	 @after{ SNRF }
 : 
-      a = simpleIdtf  {retPtr->setIdentifier($a.retPtr);                 }
-      b = ATTRSEP     {retPtr->setAttributeSeparator(QString::fromStdString($b.text)); }
+    {SNRT}  a = simpleIdtf  { IFNRR retPtr->setIdentifier($a.retPtr);                 }
+    {SNRT}  b = ATTRSEP     { SNRF  retPtr->setAttributeSeparator(QString::fromStdString($b.text)); }
 ;
     
     
@@ -149,11 +159,13 @@ objectList returns [ObjectListAST* retPtr]
   //rule: idtfWithInt ( objsep_IdtfWithInt )* 
 	@init
 		{
+		  SNRT
 		  retPtr = new ObjectListAST();
 		}
+	@after{ SNRF }
 : 
-          a = idtfWithInt        {retPtr->setIdentifierWithInt($a.retPtr);  }
-        ( b = objsep_IdtfWithInt {retPtr->addIdentifier($b.retPtr);         } )* //attention
+          {SNRT}  a = idtfWithInt        { IFNRR retPtr->setIdentifierWithInt($a.retPtr);  }
+        ( {SNRT}  b = objsep_IdtfWithInt { IFNRR retPtr->addIdentifier($b.retPtr);         } )* //attention
 ;
 
 
@@ -162,11 +174,13 @@ objsep_IdtfWithInt returns[ObjSepWIdtfWithInt* retPtr]
   //rule: OBJSEP idtfWithInt
   @init
 	  {
+	    SNRT
 	    retPtr = new ObjSepWIdtfWithInt();
 	  }
+	@after{ SNRF }
 : 
-      a = OBJSEP        {retPtr->setObjectSeparator(QString::fromStdString($a.text));  }
-      b = idtfWithInt   {retPtr->setIdentifierWithInternal($b.retPtr);                 }
+    {SNRT}  a = OBJSEP        { SNRF  retPtr->setObjectSeparator(QString::fromStdString($a.text));  }
+    {SNRT}  b = idtfWithInt   { IFNRR retPtr->setIdentifierWithInternal($b.retPtr);                 }
 ;
 
     
@@ -174,12 +188,14 @@ intSentence returns [InternalSentenceAST* retPtr]
   //rule: CONNECTORS attrsList  objectList 
 	@init
 		{
+		  SNRT
 		  retPtr = new InternalSentenceAST();
 		}
+	@after{ SNRF }
 : 
-        a = CONNECTORS   {retPtr->setConnector(QString::fromStdString($a.text));  }
-        b = attrsList    {retPtr->setAttributeList($b.retPtr);  }
-        c = objectList   {retPtr->setObjectList($c.retPtr);  }
+        {SNRT}  a = CONNECTORS   { SNRF  retPtr->setConnector(QString::fromStdString($a.text));  }
+        {SNRT}  b = attrsList    { IFNRR retPtr->setAttributeList($b.retPtr);  }
+        {SNRT}  c = objectList   { IFNRR retPtr->setObjectList($c.retPtr);  }
 ;
    
 
@@ -187,58 +203,68 @@ intSentenceList returns [InternalSentenceListAST* retPtr]
   // rule: LPAR_INT ( intSentence_sentsep )+  RPAR_INT
 	@init
 		{
+		  SNRT
 		  retPtr = new InternalSentenceListAST();
 		}
+	@after{ SNRF }
 : 
-          a = LPAR_INT               {retPtr->setLeftInternalSeparator(QString::fromStdString($a.text));  }
-        ( b = intSentence_sentsep    {retPtr->addSentence($b.retPtr);                                     }   )+ // Attention 
-          c = RPAR_INT               {retPtr->setRigthInternalSeparator(QString::fromStdString($c.text)); } 
+          {SNRT}  a = LPAR_INT               { SNRF  retPtr->setLeftInternalSeparator(QString::fromStdString($a.text));  }
+        ( {SNRT}  b = intSentence_sentsep    { IFNRR retPtr->addSentence($b.retPtr);                                     }   )+ // Attention 
+          {SNRT}  c = RPAR_INT               { SNRF  retPtr->setRigthInternalSeparator(QString::fromStdString($c.text)); } 
 ;
 
 intSentence_sentsep returns[IntSentenceWSentSep* retPtr]
   // rule: intSentence SENTSEP
 	@init
 		{
+		  SNRT
 		  retPtr = new IntSentenceWSentSep();
-		}  
+		} 
+	@after{ SNRF } 
 :  
-    a = intSentence         {  retPtr->setInternalSentence($a.retPtr);                         } 
-    b = SENTSEP             {  retPtr->setSentenceSeparator(QString::fromStdString($b.text));  }
+    {SNRT}  a = intSentence         { IFNRR   retPtr->setInternalSentence($a.retPtr);                         } 
+    {SNRT}  b = SENTSEP             { SNRF    retPtr->setSentenceSeparator(QString::fromStdString($b.text));  }
 ;
 
 internal returns [InternalAST* retPtr]
   // rule: intSentenceList
 	@init
 		{
+		  SNRT
 		  retPtr = new InternalAST();
 		}
+	@after{ SNRF }
 :  
-    a = intSentenceList    {  retPtr->setInternalSentenceList($a.retPtr);   }
+   {SNRT}   a = intSentenceList    { IFNRR   retPtr->setInternalSentenceList($a.retPtr);   }
 ;
     
 triple returns [TripleAST* retPtr]
    //rule: LPAR idtf CONTENT idtf  RPAR
    @init
     {
+      SNRT
       retPtr = new TripleAST();
     }
+   @after{ SNRF }
 : 
-      a = LPAR      {  retPtr->setLeftPar(QString::fromStdString($a.text));   } 
-      b = idtf      {  retPtr->setFirstIdentifier($b.retPtr);                 }
-      c = CONTENT   {  retPtr->setContent(QString::fromStdString($c.text));   } 
-      d = idtf      {  retPtr->setSecondIdentifier($d.retPtr);                }
-      e = RPAR      {  retPtr->setRighPar(QString::fromStdString($e.text));   } 
+      {SNRT}  a = LPAR      { SNRF    retPtr->setLeftPar(QString::fromStdString($a.text));   } 
+      {SNRT}  b = idtf      { IFNRR   retPtr->setFirstIdentifier($b.retPtr);                 }
+      {SNRT}  c = CONTENT   { SNRF    retPtr->setContent(QString::fromStdString($c.text));   } 
+      {SNRT}  d = idtf      { IFNRR   retPtr->setSecondIdentifier($d.retPtr);                }
+      {SNRT}  e = RPAR      { SNRF    retPtr->setRighPar(QString::fromStdString($e.text));   } 
 ;
 
 alias returns [AliasAST* retPtr]
   //rule: ALIASNONAME
 	@init
 		{
+		  SNRT
 		  retPtr = new AliasAST();
 		}
+	@after{ SNRF }
     
 : 
-      a = ALIASNONAME       {   retPtr->setAlias(QString::fromStdString($a.text)); }
+      {SNRT}  a = ALIASNONAME       { SNRF     retPtr->setAlias(QString::fromStdString($a.text)); }
 ;
     
     
@@ -246,26 +272,30 @@ setIdtf returns [SetIdentifierAST* retPtr]
   //rule: LPAR_SET attrsList idtfWithInt ( objsep_AttrsList_idtfWithInt )*   RPAR_SET
 	@init
 		{
+		  SNRT
 		  retPtr = new SetIdentifierAST();
 		}
+	@after{ SNRF }
 : 
-       a = LPAR_SET                             {   retPtr->setLeftSeparator(QString::fromStdString($a.text));    }
-       b = attrsList                            {   retPtr->setAttributeList($b.retPtr);                          }
-       c = idtfWithInt                          {   retPtr->setIdentifier($c.retPtr);                             }
-      (d =  objsep_AttrsList_idtfWithInt        {   retPtr->addSentence($d.retPtr);                               }  )* //attention  
-       e = RPAR_SET                             {   retPtr->setRightSeparator(QString::fromStdString($e.text));   }
+        {SNRT}  a = LPAR_SET                             { SNRF     retPtr->setLeftSeparator(QString::fromStdString($a.text));    }
+        {SNRT}  b = attrsList                            { IFNRR    retPtr->setAttributeList($b.retPtr);                          }
+        {SNRT}  c = idtfWithInt                          { IFNRR    retPtr->setIdentifier($c.retPtr);                             }
+      ( {SNRT}  d =  objsep_AttrsList_idtfWithInt        { IFNRR    retPtr->addSentence($d.retPtr);                               }  )* //attention  
+        {SNRT}  e = RPAR_SET                             { SNRF     retPtr->setRightSeparator(QString::fromStdString($e.text));   }
 ;
 
 objsep_AttrsList_idtfWithInt returns[ObjSepWAttrListWIdtfWithInt* retPtr]
   // rule: OBJSEP attrsList idtfWithInt
 	@init
 		{
+		  SNRT
 		  retPtr = new ObjSepWAttrListWIdtfWithInt();
 		}
+	@after{ SNRF }
 : 
-	  a = OBJSEP         {   retPtr->setSeparator(QString::fromStdString($a.text));    } 
-	  b = attrsList      {   retPtr->setAttributeList($b.retPtr);                      }
-	  c = idtfWithInt    {   retPtr->setIdentifier($c.retPtr);                         }
+	  {SNRT}  a = OBJSEP         { SNRF     retPtr->setSeparator(QString::fromStdString($a.text));    } 
+	  {SNRT}  b = attrsList      { IFNRR    retPtr->setAttributeList($b.retPtr);                      }
+	  {SNRT}  c = idtfWithInt    { IFNRR    retPtr->setIdentifier($c.retPtr);                         }
 ;
 
    
@@ -273,49 +303,59 @@ osetIdtf returns [OSetIdentifierAST* retPtr]
     //rule: LPAR_OSET attrsList idtfWithInt (objsep_AttrsList_idtfWithInt)* RPAR_OSET
 	@init
 		{
+		  SNRT
 		  retPtr = new OSetIdentifierAST();
 		}
+	@after{ SNRF }
 :   
-        a = LPAR_OSET                               {  retPtr->setLeftSeparator(QString::fromStdString($a.text));   }
-        b = attrsList                               {  retPtr->setAttributeList($b.retPtr);                         }
-        c = idtfWithInt                             {  retPtr->setIdentifier($c.retPtr);                            }  
-      ( d = objsep_AttrsList_idtfWithInt            {  retPtr->addSentence($d.retPtr);                              }  )* //attention
-        e = RPAR_OSET                               {  retPtr->setRightSeparator(QString::fromStdString($e.text));  }
+        {SNRT}  a = LPAR_OSET                               {  retPtr->setLeftSeparator(QString::fromStdString($a.text));   }
+        {SNRT}  b = attrsList                               { IFNRR   retPtr->setAttributeList($b.retPtr);                         }
+        {SNRT}  c = idtfWithInt                             { IFNRR   retPtr->setIdentifier($c.retPtr);                            }  
+      ( {SNRT}  d = objsep_AttrsList_idtfWithInt            { IFNRR   retPtr->addSentence($d.retPtr);                              }  )* //attention
+        {SNRT}  e = RPAR_OSET                               { SNRF    retPtr->setRightSeparator(QString::fromStdString($e.text));  }
 ;
 
 anyIdtf returns [AnyIdentifierAST* retPtr]
-@init{
-  retPtr = new AnyIdentifierAST();
-}
+  @init
+		{
+		  SNRT
+		  retPtr = new AnyIdentifierAST();
+		}
+	@after{ SNRF }
     :  
-        a=simpleIdtf    {  retPtr->setSimpleIdentifier( $a.retPtr );             }
-      | b=CONTENT       {  retPtr->setContent(QString::fromStdString($b.text));  }
-      | c=triple        {  retPtr->setTriple($c.retPtr);                         }
-      | d=setIdtf       {  retPtr->setSetIdentifier($d.retPtr);                  }
-      | e=osetIdtf      {  retPtr->setOSetIdentifier($e.retPtr);                 }
-      | f=alias         {  retPtr->setAlias($f.retPtr);                          }
+        {SNRT} a=simpleIdtf    { IFNRR retPtr->setSimpleIdentifier( $a.retPtr );             }
+      | {SNRT} b=CONTENT       { SNRF  retPtr->setContent(QString::fromStdString($b.text));  }
+      | {SNRT} c=triple        { IFNRR retPtr->setTriple($c.retPtr);                         }
+      | {SNRT} d=setIdtf       { IFNRR retPtr->setSetIdentifier($d.retPtr);                  }
+      | {SNRT} e=osetIdtf      { IFNRR retPtr->setOSetIdentifier($e.retPtr);                 }
+      | {SNRT} f=alias         { IFNRR retPtr->setAlias($f.retPtr);                          }
     ;
     
    
    
 idtf returns [IdentifierAST* retPtr]
 		@init
-		{
-		  retPtr = new IdentifierAST();
-		}
+			{
+			  SNRT
+			  retPtr = new IdentifierAST();
+			}
+		@after{ SNRF }
 : 
-    a = anyIdtf     { retPtr->setIdentifier($a.retPtr); }
+    {SNRT}  a = anyIdtf     { IFNRR  retPtr->setIdentifier($a.retPtr); }
 ;
 
 simpleIdtf returns [SimpleIdentifierAST* retPtr]
     // rule: NAME | URL
 		@init
-		{
-		  retPtr = new SimpleIdentifierAST();
-		} 
+			{
+			  SNRT
+			  retPtr = new SimpleIdentifierAST();
+			} 
+		@after{ SNRF }
+		
 :
-     NAME { retPtr->setName(QString::fromStdString($NAME.text));  } 
-   | URL  { retPtr->setUrl(QString::fromStdString($URL.text));  } 
+     {SNRT} a = NAME {  SNRF retPtr->setName(QString::fromStdString($a.text));  } 
+   | {SNRT} b = URL  {  SNRF retPtr->setUrl(QString::fromStdString($b.text));  } 
 ;
 
   
@@ -324,11 +364,13 @@ idtfWithInt returns [IdentifierWithInternalAST* retPtr]
   // rule: idtf internal?
 	@init
 	{
+	  SNRT
 	  retPtr = new IdentifierWithInternalAST();
 	} 
+	@after{ SNRF }
 :  
-      a = idtf       {  retPtr->setIdentifier($a.retPtr);  }
-    ( b= internal    {  retPtr->setInternal($b.retPtr);  } )? // ?
+      {SNRT}  a = idtf        { IFNRR   retPtr->setIdentifier($a.retPtr);  }
+    ( {SNRT}  b = internal    { IFNRR   retPtr->setInternal($b.retPtr);  } )? // ?
 ;
   
 
