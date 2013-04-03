@@ -3,8 +3,6 @@ grammar SCs;
 options
 {
     language = Cpp;
-    backtrack = true;
-    k = 1;
 }
 
 @lexer::includes
