@@ -65,10 +65,12 @@ typedef _ASTNodeType ASTNodeType;
 class AST
 {
 public:
+	AST(){mIsHaveException = false;}
     virtual ASTNodeType type() = 0;
+	void setException() { mIsHaveException = true; }
 private:
 protected:
-
+	bool mIsHaveException;
 };
 
 
