@@ -1,7 +1,22 @@
 #ifndef ASTNODES_H
 #define ASTNODES_H
 
-#define NodeType(NodeType)  ASTNodeType type() { return NodeType; }
+
+struct _bool{
+	_bool():value(false){}
+	bool value;
+};
+
+
+#define NodeType(NodeType)  \
+	public:					\
+		ASTNodeType type() { return NodeType; }
+
+#define SET_ERROR_RULE(ruleName) \
+	public:							\
+		void ruleName##Error(){m##ruleName##Error.value = true;}     \
+	private:						\
+		_bool m##ruleName##Error;		\
 
 #include <QList>
 #include <QString>
@@ -85,6 +100,7 @@ public:
     ASTNodeType type() { return SYNTAX; }
 
     void addSentence(SentenceWithSeparator *sentence);
+
 private:
     QList<SentenceWithSeparator*> mSentenceLst;
 };
@@ -99,6 +115,8 @@ public:
     void setSeparator(QString separator);
 
     NodeType(SENTANCE_WITH_SEPARATOR)
+	SET_ERROR_RULE(setSentence)
+	SET_ERROR_RULE(setSeparator)
 private:
     SentenceAST* mSentence;
     QString mSeparator;
@@ -114,6 +132,8 @@ public:
     virtual ~SentenceAST();
 
     NodeType(SENTENCE)
+	SET_ERROR_RULE(addSentenceLvl1)
+	SET_ERROR_RULE(addSentenceLv234561)
 private:
     SentenceLvl1AST* mSentenceLvl1;
     SentenceLv234561AST* mSentenceLvl23456;
@@ -135,6 +155,11 @@ public:
 
 
     NodeType(SENTENCE_LVL1)
+	SET_ERROR_RULE(setFirstIdentifier)
+	SET_ERROR_RULE(setSecondIdentifier)
+	SET_ERROR_RULE(setThirdIdentifier)
+	SET_ERROR_RULE(setFirstTripleSeparator)
+	SET_ERROR_RULE(setSecondTripleSeparator)
 private:
     QString mFirstTripleSep;
     QString mSecondTripleSep;
@@ -156,6 +181,10 @@ public:
     void setObjectList(ObjectListAST* objLst);
 
     NodeType(SENTENCE_LVL23456)
+	SET_ERROR_RULE(setIdentifier)
+	SET_ERROR_RULE(setConnector)
+	SET_ERROR_RULE(setAttributeList)
+	SET_ERROR_RULE(setObjectList)
 private:
     IdentifierAST *mIdentifier;
     QString mConntector;
@@ -173,7 +202,8 @@ public:
     void setUrl(QString url);
 
     NodeType(SIMPLE_IDENTIFIER)
-
+	SET_ERROR_RULE(setName)
+	SET_ERROR_RULE(setUrl)
 private:
     QString         mName;
     QString         mUrl;
@@ -188,6 +218,7 @@ public:
     virtual ~IdentifierAST();
 
     NodeType(IDENTIFIER)
+	SET_ERROR_RULE(setIdentifier)
 private:
     AnyIdentifierAST *mIdentidier;
 };
@@ -206,6 +237,11 @@ public:
     void setContent(QString content);
 
     NodeType(TRIPLE)
+	SET_ERROR_RULE(setFirstIdentifier)
+	SET_ERROR_RULE(setSecondIdentifier)
+	SET_ERROR_RULE(setLeftPar)
+	SET_ERROR_RULE(setRighPar)
+	SET_ERROR_RULE(setContent)
 private:
     QString mLeftPar;
     QString mRightPar;
@@ -228,6 +264,12 @@ public:
 
 
     NodeType(ANY_IDENTIFIER)
+	SET_ERROR_RULE(setSimpleIdentifier)
+	SET_ERROR_RULE(setContent)
+	SET_ERROR_RULE(setTriple)
+	SET_ERROR_RULE(setSetIdentifier)
+	SET_ERROR_RULE(setOSetIdentifier)
+	SET_ERROR_RULE(setAlias)
 private:
     bool                 mIsDefine;
     SimpleIdentifierAST *mSimplyIdtf;
@@ -251,6 +293,9 @@ public:
     void setIdentifier(IdentifierWithInternalAST *idtf);
 
     NodeType(OBJSEP_W_ATTR_LIST_W_IDTF_WITH_INT)
+	SET_ERROR_RULE(setSeparator)
+	SET_ERROR_RULE(setAttributeList)
+	SET_ERROR_RULE(setIdentifier)
 private:
     QString mObjSep;
     AttributesListAST *mAttrLst;
@@ -271,6 +316,11 @@ public:
     void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
 
     NodeType(SET_IDENTIFIER)
+	SET_ERROR_RULE(setLeftSeparator)
+	SET_ERROR_RULE(setRightSeparator)
+	SET_ERROR_RULE(setAttributeList)
+	SET_ERROR_RULE(setIdentifier)
+	SET_ERROR_RULE(addSentence)
 private:
     QString mLeftSep;
     AttributesListAST *mAttrLst;
@@ -292,6 +342,11 @@ public:
     void addSentence(ObjSepWAttrListWIdtfWithInt *sentence);
 
     NodeType(OSET_IDENTIFIER)
+	SET_ERROR_RULE(setLeftSeparator)
+	SET_ERROR_RULE(setRightSeparator)
+	SET_ERROR_RULE(setAttributeList)
+	SET_ERROR_RULE(setIdentifier)
+	SET_ERROR_RULE(addSentence)
 private:
     QString mLeftSep;
     AttributesListAST *mAttrLst;
@@ -308,6 +363,8 @@ public:
     void setAlias(QString alias);
 
     NodeType(ALIAS)
+
+	SET_ERROR_RULE(setAlias)
 private:
     QString     mAlias;
 };
@@ -323,6 +380,8 @@ public:
     void addIdentifier(SimpleIdtfrWAttrSepAST *idtf);
 
     NodeType(ATRIBUTES_LIST)
+
+	SET_ERROR_RULE(addIdentifier)
 private:
     QList<SimpleIdtfrWAttrSepAST*> mAttrListSentenceLst;
 };
@@ -338,6 +397,9 @@ public:
     void setAttributeSeparator(QString attrSep);
 
     NodeType(SIMPLE_IDENTIFIER_W_ATTRIBUTE_SEPARATOR)
+
+	SET_ERROR_RULE(setIdentifier)
+	SET_ERROR_RULE(setAttributeSeparator)
 private:
     SimpleIdentifierAST *mIdentifier;
     QString mAttrSep;
@@ -355,6 +417,9 @@ public:
     void setInternal(InternalAST *internal);
 
     NodeType(IDTF_WITH_INT)
+
+	SET_ERROR_RULE(setIdentifier)
+	SET_ERROR_RULE(setInternal)
 private:
     IdentifierAST   *mIdtf;
     InternalAST     *mInternal;
@@ -369,6 +434,8 @@ public:
     virtual ~InternalAST();
 
     NodeType(INTERNAL)
+
+	SET_ERROR_RULE(setInternalSentenceList)
 private:
     InternalSentenceListAST *mInternalLst;
 };
@@ -385,6 +452,10 @@ public:
     void addSentence(IntSentenceWSentSep *sentence);
 
     NodeType(INTERNAL_SENTENCE_LIST)
+
+	SET_ERROR_RULE(setLeftInternalSeparator)
+	SET_ERROR_RULE(setRigthInternalSeparator)
+	SET_ERROR_RULE(addSentence)
 private:
     QString mRightIntSep;
     QString mLeftIntSep;
@@ -405,6 +476,10 @@ public:
 
 
     NodeType(INTERNAL_SENTENCE)
+
+	SET_ERROR_RULE(setConnector)
+	SET_ERROR_RULE(setAttributeList)
+	SET_ERROR_RULE(setObjectList)
 private:
     QString mConnector;
     AttributesListAST *mAttributeList;
@@ -419,11 +494,12 @@ public:
     ~ObjectListAST();
 
     void setIdentifierWithInt(IdentifierWithInternalAST *idtf);
-
     void addIdentifier(ObjSepWIdtfWithInt *idtf);
 
-
     NodeType(OBJECT_LIST)
+
+	SET_ERROR_RULE(setIdentifierWithInt)
+	SET_ERROR_RULE(addIdentifier)
 private:
     IdentifierWithInternalAST *mIdtfWithInt;
     QList<ObjSepWIdtfWithInt*> mIdtfWithIntLst;
@@ -442,6 +518,9 @@ public:
 
 
     NodeType(INT_SENTENCE_W_SENT_SEP)
+
+	SET_ERROR_RULE(setInternalSentence)
+	SET_ERROR_RULE(setSentenceSeparator)
 private:
     InternalSentenceAST *mIntSentence;
     QString mSentSep;
@@ -460,6 +539,9 @@ public:
 
 
     NodeType(OBJ_SEP_W_IDTF_WITH_INT)
+
+	SET_ERROR_RULE(setIdentifierWithInternal)
+	SET_ERROR_RULE(setObjectSeparator)
 private:
     IdentifierWithInternalAST *mIdtwWithInt;
     QString mObjSep;

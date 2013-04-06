@@ -87,12 +87,14 @@ using namespace SCsAST;
   }       
 //after terminal symbol
 #define ATS(ptr,methodName) \
-  if(ptr!=NULL) pName->methodName(QString::fromStdString(ptr->getText())); \
+  if(ptr!=NULL && mHasException==false) {pName->methodName(QString::fromStdString(ptr->getText()));} \
+  else {pName->methodName##Error();} \
   CHECK_EXCEPTION \
   IFNRR 
 // after non terminal symbol
 #define ANTS(ptr,methodName) \
-  if(ptr!=NULL) pName->methodName(ptr); \
+  if(ptr!=NULL && mHasException==false) {pName->methodName(ptr);} \
+  else {pName->methodName##Error();} \
   IFNRR 
 #define CODE_AFTER_RULE CHECK_EXCEPTION
 
@@ -281,6 +283,7 @@ public:
     {
         //fprintf(stderr,"parser line:%d pos:%d\n",ex->get_line(),ex->get_charPositionInLine());
         mNeedRecover = true;
+		mHasException = true;
         mErrorsArray.push_back(new SCsParserNS::SCsParser::RuntimeParserError(tokenNames, ex) );
     }
     std::list<SCsParserNS::SCsParser::RuntimeParserError*> getParserErrors(){ return mErrorsArray; }
@@ -306,7 +309,7 @@ void recover()
 	bool hasException()
 	{
 		bool bRes = SCsParserImplTraits::BaseParserType::hasException();
-		if(bRes)
+		if(bRes || mHasException)
 		{
 			this->preporterror();
 			this->precover();
