@@ -81,7 +81,7 @@ bool SCsParserWrapper::parseData()
     SCsParserNS::SCsParser::TokenStreamType tstream(ANTLR_SIZE_HINT, lxr.get_tokSource() );
     SCsParserNS::SCsParser psr(&tstream);
 
-	SCsParserNS::SCsParser::TokenStreamType::TokensMapType *map = tstream.getTokens();
+	//SCsParserNS::SCsParser::TokenStreamType::TokensMapType *map = tstream.getTokens();
 
     psr.syntax();
 
