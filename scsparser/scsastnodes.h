@@ -3,8 +3,13 @@
 
 
 struct _bool{
-	_bool():value(false){}
+	_bool():value(true){}
 	bool value;
+	_bool operator=(const bool &val)
+	{
+		this->value = val;
+		return *this;
+	}
 };
 
 
@@ -15,6 +20,7 @@ struct _bool{
 #define SET_ERROR_RULE(ruleName) \
 	public:							\
 		void ruleName##Error(){m##ruleName##Error.value = true;}     \
+		bool ruleName##Check##Error() {return m##ruleName##Error.value; } \
 	private:						\
 		_bool m##ruleName##Error;		\
 

@@ -17,17 +17,22 @@ class SCsParserError: public QObject
     Q_OBJECT
 
 public:
+
+	typedef ANTLR_INT32 ExceptionType;
+
     explicit SCsParserError(QObject *parent = 0);
     ~SCsParserError();
     SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
     SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
+	SCsParserError(SCsParserError* copy);
     ErrorType type(){ return mType; }
     int line() { return mLine; }
     int positionInLine() { return  mPositionInLine; }
+	ExceptionType getExceptionType() { return mExceptionType; }
 
 private:
     ErrorType mType;
-    ANTLR_UINT8** mTokenNames;
+	ExceptionType mExceptionType;
     int mLine;
     int mPositionInLine;
 };
@@ -51,7 +56,6 @@ private:
 
     QString mParseData;
     QList<SCsParserError*> mErrorList;
-    bool mClearErrors;
 
 signals:
     

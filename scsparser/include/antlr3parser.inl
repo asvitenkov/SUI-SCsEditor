@@ -223,15 +223,16 @@ typename Parser<ImplTraits>::TokenType*	Parser<ImplTraits>::getMissingSymbol( In
 
 	// Create the token text that shows it has been inserted
 	//
-	token->setText("<missing ");
-	text = token->getText();
+	//token->setText("<missing ");
+	token->setDetectedTokenType(current->get_type());
+	text ="missing ";
 
 	if	(!text.empty())
 	{
 		text.append((const char *) this->get_rec()->get_state()->get_tokenName(expectedTokenType) );
-		text.append(">");
 	}
 
+	token->setText(text.c_str());
 	// Finally return the pointer to our new token
 	//
 	return	token;

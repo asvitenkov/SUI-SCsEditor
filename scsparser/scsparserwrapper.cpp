@@ -2,9 +2,11 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QTextCodec>
+#include <antlr3.hpp>
 
 SCsParserError::SCsParserError(QObject *parent) :
-    QObject(parent), mTokenNames(NULL)
+    QObject(parent)
 {
 
 }
@@ -16,20 +18,30 @@ SCsParserError::~SCsParserError()
 
 
 SCsParserError::SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type, QObject *parent) :
-    QObject(parent), mType(type),mTokenNames(error->mToken)
+    QObject(parent), mType(type)
 {
     mLine = error->mException->get_line();
     mPositionInLine = error->mException->get_charPositionInLine();
+	mExceptionType =  error->mException->getType();
 
 }
 
 SCsParserError::SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type, QObject *parent) :
-    QObject(parent), mType(type), mTokenNames(error->mToken)
+    QObject(parent), mType(type)
 {
     mLine = error->mException->get_line();
     mPositionInLine = error->mException->get_charPositionInLine();
+	mExceptionType =  error->mException->getType();
 }
 
+
+SCsParserError::SCsParserError(SCsParserError* copy)
+{
+	mExceptionType = copy->mExceptionType;
+	mLine = copy->mLine;
+	mPositionInLine = copy->mPositionInLine;
+	mType = copy->type();
+}
 
 SCsParserWrapper::SCsParserWrapper(QObject *parent) :
     QObject(parent)
@@ -46,23 +58,37 @@ SCsParserWrapper::SCsParserWrapper(const QString &data, QObject *parent) :
 
 void SCsParserWrapper::setData(const QString &data)
 {
-    mParseData = data;
+	mParseData = data.toUtf8();
+	//data.toLocal8Bit();;
 }
 
 bool SCsParserWrapper::parseData()
 {
     QFile file("tmpParserFile",this);
     file.open(QIODevice::WriteOnly);
-    file.write(mParseData.toStdString().c_str());
+	QTextCodec *codec = QTextCodec::codecForName("Windows-1251");
+	QByteArray data;
+	if(codec)
+		data = codec->fromUnicode(codec->fromUnicode(mParseData));
+	else 
+		data = mParseData.toLocal8Bit();
+	file.write(data);
     file.close();
 
-    SCsParserNS::SCsLexer::InputStreamType input((ANTLR_UINT8*)"tmpParserFile", ANTLR_ENC_8BIT);
+    SCsParserNS::SCsLexer::InputStreamType input((ANTLR_UINT8*)"tmpParserFile", ANTLR_ENC_UTF8);
     SCsParserNS::SCsLexer lxr(&input);
+
     SCsParserNS::SCsParser::TokenStreamType tstream(ANTLR_SIZE_HINT, lxr.get_tokSource() );
     SCsParserNS::SCsParser psr(&tstream);
+
+	SCsParserNS::SCsParser::TokenStreamType::TokensMapType *map = tstream.getTokens();
+
     psr.syntax();
 
+	file.open(QIODevice::WriteOnly);
     file.remove();
+	file.close();
+	
 
     std::list<SCsParserNS::SCsParser::RuntimeParserError*> parserErrors = psr.getParserErrors();
     std::list<SCsParserNS::SCsLexer::RuntimeParserError*> lexerErrors = lxr.getLexerError();
@@ -80,32 +106,30 @@ bool SCsParserWrapper::parseData()
         mErrorList.push_back( new SCsParserError(*itLexer, LEXER_ERROR ) );
 
 
-    mClearErrors = true;
+
 
     return (mErrorList.empty());
-
 }
 
 
 
 void SCsParserWrapper::clearErrors()
 {
-    if(mClearErrors)
-    {
-        mClearErrors = false;
-        QList<SCsParserError*>::Iterator it;
-        for( it=mErrorList.begin(); it!=mErrorList.end(); ++it )
-            delete *it;
-
-        mErrorList.clear();
-    }
+	qDeleteAll(mErrorList.begin(),mErrorList.end());
+	mErrorList.clear();
 }
 
 
 QList<SCsParserError*> SCsParserWrapper::getErrors()
 {
-    mClearErrors = false;
-    return mErrorList;
+	QList<SCsParserError*> lst;
+	QList<SCsParserError*>::iterator it = mErrorList.begin();
+	while ( it!=mErrorList.end() )
+	{
+		lst.append(new SCsParserError(*it));
+		++it;
+	}
+    return lst;
 }
 
 

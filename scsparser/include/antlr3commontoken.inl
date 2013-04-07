@@ -12,6 +12,8 @@ CommonToken<ImplTraits>::CommonToken()
 	m_index = 0;
 	m_startIndex = 0;
 	m_stopIndex = 0;
+	m_detectedTokenType = 0;
+	
 }
 
 template<class ImplTraits>
@@ -26,6 +28,7 @@ CommonToken<ImplTraits>::CommonToken(ANTLR_UINT32 type)
 	m_index = 0;
 	m_startIndex = 0;
 	m_stopIndex = 0;
+	m_detectedTokenType = 0;
 }
 
 template<class ImplTraits>
@@ -40,6 +43,7 @@ CommonToken<ImplTraits>::CommonToken(TOKEN_TYPE type)
 	m_index = 0;
 	m_startIndex = 0;
 	m_stopIndex = 0;
+	m_detectedTokenType = 0;
 }
 
 template<class ImplTraits>
@@ -55,6 +59,7 @@ CommonToken<ImplTraits>::CommonToken( const CommonToken& ctoken )
 	m_index = ctoken.m_index;
 	m_startIndex = ctoken.m_startIndex;
 	m_stopIndex = ctoken.m_stopIndex;
+	m_detectedTokenType = ctoken.m_detectedTokenType;
 }
 
 template<class ImplTraits>
@@ -71,6 +76,8 @@ CommonToken<ImplTraits>& CommonToken<ImplTraits>::operator=( const CommonToken& 
 	m_stopIndex = ctoken.m_stopIndex;
 
 	m_tokText = ctoken.m_tokText;
+
+	m_detectedTokenType = ctoken.m_detectedTokenType;
 	return *this;
 }
 

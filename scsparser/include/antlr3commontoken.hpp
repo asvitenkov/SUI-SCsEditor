@@ -128,6 +128,8 @@ private:
      */
     ANTLR_MARKER		m_stopIndex;
 
+	ANTLR_UINT32   m_detectedTokenType;
+
 public:
 	CommonToken();
 	CommonToken(ANTLR_UINT32 type);
@@ -241,6 +243,16 @@ public:
      */
     StringType  toString() const;
 
+
+	void setDetectedTokenType(ANTLR_UINT32 type)
+	{
+		m_detectedTokenType = type;
+	}
+
+	ANTLR_UINT32 getDetectedTokenType()
+	{
+		return m_detectedTokenType;
+	}
 };
 
 ANTLR_END_NAMESPACE()

@@ -9,8 +9,9 @@
 
 
 SCsCodeEditorWidget::SCsCodeEditorWidget(QWidget *parent) :
-    QWidget(parent),
-    mEditor(0)
+    QWidget(parent)
+    ,mEditor(0)
+	,mEditorFindWidget(0)
 {
 
     mEditor = new SCsCodeEditor();
@@ -44,18 +45,25 @@ void SCsCodeEditorWidget::onCheckGrammarShortcut()
     QVector<int> errorLines;
     if( !psr.parseData() )
     {
-        // free memory after
         QList<SCsParserError*> errorList = psr.getErrors();
-
 
         QList<SCsParserError*>::Iterator it;
         for( it=errorList.begin(); it!=errorList.end(); ++it)
         {
             errorLines.push_back((*it)->line());
-            delete *it;
         }
+
+		qDeleteAll(errorList.begin(),errorList.end());
         errorList.clear();
     }
     mEditor->setErrorsLines(errorLines);
     mEditor->update();
+}
+
+
+
+SCsCodeEditorWidget::~SCsCodeEditorWidget()
+{
+	if(mEditorFindWidget)
+		delete mEditorFindWidget;
 }

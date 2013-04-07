@@ -482,6 +482,7 @@ BaseRecognizer<ImplTraits, StreamType>::recoverFromMismatchedToken( ANTLR_UINT32
 		matchedSymbol = this->getMissingSymbol( is, m_state->get_exception(), ttype, follow);
 		m_state->get_exception()->set_token( matchedSymbol );
 		m_state->get_exception()->set_expecting(ttype);
+		//m_state->get_exception()->
 
 		// Print out the error after we insert so that ANTLRWorks sees the
 		// token in the exception.

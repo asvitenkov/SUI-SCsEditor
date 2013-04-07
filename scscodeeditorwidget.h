@@ -11,6 +11,7 @@ class SCsCodeEditorWidget : public QWidget
     Q_OBJECT
 public:
     explicit SCsCodeEditorWidget(QWidget *parent = 0);
+	~SCsCodeEditorWidget();
     SCsCodeEditor* getCodeEditor(){ return mEditor; }
 signals:
     

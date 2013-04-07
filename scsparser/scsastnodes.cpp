@@ -91,6 +91,8 @@ void SentenceWithSeparator::setSentence(SentenceAST *sentence)
     Q_ASSERT_X(!mSentence,"","mSentence already defined");
     Q_CHECK_PTR(sentence);
 
+	msetSentenceError = false;
+
     if(sentence && !mSentence)
         mSentence = sentence;
 }
@@ -99,6 +101,8 @@ void SentenceWithSeparator::setSeparator(QString separator)
 {
     Q_ASSERT(!separator.isEmpty());
     Q_ASSERT_X(mSeparator.isEmpty(),"","mSeparator already defined");
+
+	msetSeparatorError = false;
 
     if(!separator.isEmpty() && mSeparator.isEmpty())
         mSeparator = separator;
