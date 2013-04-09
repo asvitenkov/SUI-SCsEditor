@@ -28,6 +28,14 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QSyntaxHighlighter>
 
+namespace RuleState{
+	enum BlockStateRule
+	{
+		 MultiLineCommentRuleState = 1
+		,ContentRuleState          = 2
+	};
+}
+
 class SCsAbstractHighlightingRule;
 
 class SCsSyntaxHighlighter : public QSyntaxHighlighter
@@ -38,6 +46,7 @@ public:
     void setFormating(int, int, QTextCharFormat);
     void setCurBlockState(int state);
     int prevBlockState();
+	int curBlockState();
 
 private:
     QList<SCsAbstractHighlightingRule*> mHighlightingRules;
