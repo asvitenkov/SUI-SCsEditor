@@ -31,29 +31,30 @@ SCsMultiLineCommentHighlightingRule::SCsMultiLineCommentHighlightingRule(QRegExp
 
 void SCsMultiLineCommentHighlightingRule::assignFormat(SCsSyntaxHighlighter *highlighter, const QString &text)
 {
-     highlighter->setCurBlockState(0);
 
-     int startIndex = 0;
-     if (highlighter->prevBlockState() != 1)
-         startIndex = text.indexOf(mStart);
+	int state = highlighter->curBlockState();
+	 if(state>0 && state!=RuleState::MultiLineCommentRuleState)
+		 return;
 
-     while (startIndex >= 0)
-     {
-        int endIndex = text.indexOf(mEnd, startIndex);
-        int commentLength;
-        if (endIndex == -1)
-        {
-            highlighter->setCurBlockState(1);
-            commentLength = text.length() - startIndex;
-        }
-        else
-        {
-            commentLength = endIndex - startIndex
-                            +mEnd.matchedLength();
-        }
+	 highlighter->setCurBlockState(0);
 
-        highlighter->setFormating(startIndex, commentLength, format());
-        startIndex = text.indexOf(mStart,
-                                  startIndex + commentLength);
-     }
+	 int startIndex = 0;
+	 if (highlighter->prevBlockState() != RuleState::MultiLineCommentRuleState)
+		 startIndex = mStart.indexIn(text);;// commentStartExpression.indexIn(text);
+
+	 while (startIndex >= 0) {
+		 int endIndex = mEnd.indexIn(text, startIndex);
+		 int commentLength;
+		 if (endIndex == -1) {
+			 highlighter->setCurBlockState(RuleState::MultiLineCommentRuleState);
+			 int t = highlighter->prevBlockState();
+			 commentLength = text.length() - startIndex;
+		 } else {
+			 commentLength = endIndex - startIndex
+				 + mEnd.matchedLength();
+		 }
+		 highlighter->setFormating(startIndex, commentLength, format());
+		 startIndex = mStart.indexIn(text, startIndex + commentLength);
+	 }
+
 }

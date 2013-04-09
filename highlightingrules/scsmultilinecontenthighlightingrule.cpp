@@ -11,10 +11,14 @@ SCsMultiLineContentHighlightingRule::SCsMultiLineContentHighlightingRule(QRegExp
 
 void SCsMultiLineContentHighlightingRule::assignFormat(SCsSyntaxHighlighter *highlighter, const QString &text)
 {
-    highlighter->setCurBlockState(0);
+	int state = highlighter->curBlockState();
+    if(state>0 && state!=RuleState::ContentRuleState)
+		return;
+	highlighter->setCurBlockState(0);
+	
 
     int startIndex = 0;
-    if (highlighter->prevBlockState() != 1)
+    if (highlighter->prevBlockState() != RuleState::ContentRuleState)
         startIndex = text.indexOf(mStart);
 
     while (startIndex >= 0)
@@ -23,7 +27,7 @@ void SCsMultiLineContentHighlightingRule::assignFormat(SCsSyntaxHighlighter *hig
        int contentLength;
        if (endIndex == -1)
        {
-           highlighter->setCurBlockState(1);
+           highlighter->setCurBlockState(RuleState::ContentRuleState);
            contentLength = text.length() - startIndex;
        }
        else

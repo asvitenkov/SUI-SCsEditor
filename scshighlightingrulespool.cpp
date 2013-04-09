@@ -43,41 +43,46 @@ SCsHighlightingRulesPool::SCsHighlightingRulesPool()
     QRegExp pattern = QRegExp("[\\.,;:=]");
     mRules.append(new SCsStdHighlightingRule(pattern, commaFormat));
 
+	QTextCharFormat format;
+	// simply idtf
+	// TODO make normal ID
+	format.setForeground(QColor(128, 0, 0));// const
+	mRules.append(new SCsStdHighlightingRule(QRegExp("[A-Za-z0-9_.]+"), format));
+
     //initiScNodesRules();
     initScArcRules();
 
-    QTextCharFormat format;
+    
 
     // single line comment
     format.setForeground(Qt::darkGray);
-    QRegExp start = QRegExp("//");
+    QRegExp start = QRegExp("//.*$");
     QRegExp end = QRegExp("\\n");
-    mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
+    mRules.append(new SCsStdHighlightingRule(start,format));
 
-    // simply idtf
-    // TODO make normal ID
-    format.setForeground(QColor(255, 128, 64));// const
-    mRules.append(new SCsStdHighlightingRule(QRegExp("_[A-Za-z0-9]+"), format));
+    
 
-    // multi line comment
-    format.setForeground(Qt::darkGray);
-    start = QRegExp("/!\\*");
-    end = QRegExp("\\*/");
-    mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
+    
 
     // URL
     format.setForeground(QBrush(QColor(0, 128, 0)));
     pattern = QRegExp("\".*\"");
     mRules.append(new SCsStdHighlightingRule(pattern, format));
 
-    // content
+    
+
+
+	// multi line comment
+	format.setForeground(Qt::darkGray);
+	start = QRegExp("/!\\*");
+	end = QRegExp("\\*/");
+	mRules.append(new SCsMultiLineCommentHighlightingRule(start, end, format));
+
+	// content
     format.setForeground(QColor(122, 55, 139));
     start = QRegExp("\\[");
     end = QRegExp("\\]");
     mRules.append(new SCsMultiLineContentHighlightingRule(start,end, format));
-
-
-
 }
 
 void SCsHighlightingRulesPool::initiScNodesRules()
@@ -187,6 +192,8 @@ void SCsHighlightingRulesPool::initScArcRules()
 QList<SCsAbstractHighlightingRule*> SCsHighlightingRulesPool::rules()
 {
     return mRules;
+	//QList<SCsAbstractHighlightingRule*> a;
+	//return a;
 }
 
 SCsHighlightingRulesPool::~SCsHighlightingRulesPool()
