@@ -29,7 +29,7 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileSystemWatcher>
 #include <limits>
 
-const QRegExp SCsCodeAnalyzer::msIdentifierExp("([$]?[A-Za-z0-9_]+)");
+const QRegExp SCsCodeAnalyzer::msIdentifierExp("([$]?[A-Za-z0-9_.]+)");
 const QRegExp SCsCodeAnalyzer::msIncludeExp("#include\\s+\"([^\"]+)\"");
 QList<SCsCodeAnalyzer::BlockPattern> SCsCodeAnalyzer::msIgnoreBlockPatterns;
 

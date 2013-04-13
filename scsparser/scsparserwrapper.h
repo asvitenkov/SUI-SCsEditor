@@ -12,19 +12,18 @@ enum ErrorType{
 };
 
 
-class SCsParserError: public QObject
+class SCsParserError
 {
-    Q_OBJECT
 
 public:
 
 	typedef ANTLR_INT32 ExceptionType;
-
-    explicit SCsParserError(QObject *parent = 0);
-    ~SCsParserError();
-    SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
-    SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type,QObject *parent = 0);
-	SCsParserError(SCsParserError* copy);
+	SCsParserError();
+    virtual ~SCsParserError();
+    SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type);
+    SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type);
+	SCsParserError(const SCsParserError& copy);
+	SCsParserError &operator=(const SCsParserError &copy);
     ErrorType type(){ return mType; }
     int line() { return mLine; }
     int positionInLine() { return  mPositionInLine; }
@@ -48,6 +47,7 @@ public:
     void setData(const QString &data);
     bool parseData();
     QList<SCsParserError*> getErrors();
+
 
 
 

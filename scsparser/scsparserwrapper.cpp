@@ -1,12 +1,11 @@
 #include "scsparserwrapper.h"
 
 #include <QFile>
-#include <QDebug>
 #include <QTextCodec>
 #include <antlr3.hpp>
 
-SCsParserError::SCsParserError(QObject *parent) :
-    QObject(parent)
+SCsParserError::SCsParserError() :
+	mLine(-1), mPositionInLine(-1), mExceptionType(-1)
 {
 
 }
@@ -17,30 +16,41 @@ SCsParserError::~SCsParserError()
 }
 
 
-SCsParserError::SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type, QObject *parent) :
-    QObject(parent), mType(type)
+SCsParserError::SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type) :
+    mType(type)
 {
     mLine = error->mException->get_line();
     mPositionInLine = error->mException->get_charPositionInLine();
-	mExceptionType =  error->mException->getType();
+	mExceptionType = error->mException->getType();
 
 }
 
-SCsParserError::SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type, QObject *parent) :
-    QObject(parent), mType(type)
+SCsParserError::SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type) :
+    mType(type)
 {
     mLine = error->mException->get_line();
     mPositionInLine = error->mException->get_charPositionInLine();
-	mExceptionType =  error->mException->getType();
+	mExceptionType = error->mException->getType();
 }
 
 
-SCsParserError::SCsParserError(SCsParserError* copy)
+
+SCsParserError::SCsParserError(const SCsParserError& copy)
 {
-	mExceptionType = copy->mExceptionType;
-	mLine = copy->mLine;
-	mPositionInLine = copy->mPositionInLine;
-	mType = copy->type();
+	mPositionInLine = copy.mPositionInLine;
+	mLine = copy.mLine;
+	mType = copy.mType;
+	mExceptionType = copy.mExceptionType;
+}
+
+SCsParserError & SCsParserError::operator=(const SCsParserError &copy)
+{
+	mPositionInLine = copy.mPositionInLine;
+	mLine = copy.mLine;
+	mType = copy.mType;
+	mExceptionType = copy.mExceptionType;
+
+	return *this;
 }
 
 SCsParserWrapper::SCsParserWrapper(QObject *parent) :
@@ -52,20 +62,19 @@ SCsParserWrapper::SCsParserWrapper(QObject *parent) :
 SCsParserWrapper::SCsParserWrapper(const QString &data, QObject *parent) :
     QObject(parent)
 {
-    mParseData = data;
+    mParseData = data.toUtf8();
 }
 
 
 void SCsParserWrapper::setData(const QString &data)
 {
-	mParseData = data.toUtf8();
-	//data.toLocal8Bit();;
+    mParseData = data.toUtf8();
 }
 
 bool SCsParserWrapper::parseData()
 {
-    QFile file("tmpParserFile",this);
-    file.open(QIODevice::WriteOnly);
+	QFile file("tmpParserFile",this);
+	file.open(QIODevice::WriteOnly);
 	QTextCodec *codec = QTextCodec::codecForName("Windows-1251");
 	QByteArray data;
 	if(codec)
@@ -73,63 +82,61 @@ bool SCsParserWrapper::parseData()
 	else 
 		data = mParseData.toLocal8Bit();
 	file.write(data);
-    file.close();
+	file.close();
 
-    SCsParserNS::SCsLexer::InputStreamType input((ANTLR_UINT8*)"tmpParserFile", ANTLR_ENC_UTF8);
-    SCsParserNS::SCsLexer lxr(&input);
+	SCsParserNS::SCsLexer::InputStreamType input((ANTLR_UINT8*)"tmpParserFile", ANTLR_ENC_UTF8);
+	SCsParserNS::SCsLexer lxr(&input);
 
-    SCsParserNS::SCsParser::TokenStreamType tstream(ANTLR_SIZE_HINT, lxr.get_tokSource() );
-    SCsParserNS::SCsParser psr(&tstream);
+	SCsParserNS::SCsParser::TokenStreamType tstream(ANTLR_SIZE_HINT, lxr.get_tokSource() );
+	SCsParserNS::SCsParser psr(&tstream);
 
 	//SCsParserNS::SCsParser::TokenStreamType::TokensMapType *map = tstream.getTokens();
 
-    psr.syntax();
+	psr.syntax();
 
 	file.open(QIODevice::WriteOnly);
-    file.remove();
+	file.remove();
 	file.close();
-	
-
-    std::list<SCsParserNS::SCsParser::RuntimeParserError*> parserErrors = psr.getParserErrors();
-    std::list<SCsParserNS::SCsLexer::RuntimeParserError*> lexerErrors = lxr.getLexerError();
 
 
-    std::list<SCsParserNS::SCsParser::RuntimeParserError*>::iterator itParser;
-    std::list<SCsParserNS::SCsLexer::RuntimeParserError*>::iterator itLexer;
-
-    clearErrors();
-
-    for( itParser=parserErrors.begin(); itParser!=parserErrors.end(); ++itParser)
-        mErrorList.push_back( new SCsParserError( *itParser, PARSER_ERROR ));
-
-    for( itLexer=lexerErrors.begin(); itLexer!=lexerErrors.end(); ++itLexer )
-        mErrorList.push_back( new SCsParserError(*itLexer, LEXER_ERROR ) );
+	std::list<SCsParserNS::SCsParser::RuntimeParserError*> parserErrors = psr.getParserErrors();
+	std::list<SCsParserNS::SCsLexer::RuntimeParserError*> lexerErrors = lxr.getLexerError();
 
 
+	std::list<SCsParserNS::SCsParser::RuntimeParserError*>::iterator itParser;
+	std::list<SCsParserNS::SCsLexer::RuntimeParserError*>::iterator itLexer;
 
+	clearErrors();
+
+	for( itLexer=lexerErrors.begin(); itLexer!=lexerErrors.end(); ++itLexer )
+		mErrorList.push_back( new SCsParserError(*itLexer, LEXER_ERROR ) );
+
+	for( itParser=parserErrors.begin(); itParser!=parserErrors.end(); ++itParser)
+		mErrorList.push_back( new SCsParserError( *itParser, PARSER_ERROR ));
 
     return (mErrorList.empty());
+
 }
 
 
 
 void SCsParserWrapper::clearErrors()
 {
-	qDeleteAll(mErrorList.begin(),mErrorList.end());
+	qDeleteAll(mErrorList.begin(), mErrorList.end());
 	mErrorList.clear();
 }
 
 
 QList<SCsParserError*> SCsParserWrapper::getErrors()
 {
-	QList<SCsParserError*> lst;
+	QList<SCsParserError*> list;
 	QList<SCsParserError*>::iterator it = mErrorList.begin();
 	while ( it!=mErrorList.end() )
 	{
-		lst.append(new SCsParserError(*it));
+		list.append(new SCsParserError(**it));
 		++it;
 	}
-    return lst;
+	return list;
 }
 
 
