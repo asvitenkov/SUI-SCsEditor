@@ -52,6 +52,8 @@ protected:
 
     QString textUnderCursor();
 
+	void checkGrammar();
+
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();

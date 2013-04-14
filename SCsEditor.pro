@@ -27,7 +27,8 @@ HEADERS += \
     scscodeeditorwidget.h \
     scscodeeditorfindwidget.h \
     highlightingrules/scsmultilinecontenthighlightingrule.h \
-    scsparser/scsastnodes.h
+    scsparser/scsastnodes.h \
+    scsparser/scsparserexception.h
     
 SOURCES += \
     scssyntaxhighlighter.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
     scscodeeditorwidget.cpp \
     scscodeeditorfindwidget.cpp \
     highlightingrules/scsmultilinecontenthighlightingrule.cpp \
-    scsparser/scsastnodes.cpp
+    scsparser/scsastnodes.cpp \
+    scsparser/scsparserexception.cpp
 
 RESOURCES += \
     media/scseditor.qrc

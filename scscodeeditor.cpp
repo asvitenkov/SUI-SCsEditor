@@ -31,6 +31,7 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include "scscodeanalyzer.h"
 #include "scscodecompleter.h"
 #include "scscodeeditorfindwidget.h"
+#include "scsparserwrapper.h"
 
 #define SPACE_FOR_ERROR_LABEL 20
 #define ICON_ERROR_NAME QString("error.png")
@@ -144,7 +145,6 @@ void SCsCodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
                               Qt::AlignRight, number);
              if(isLineWithError(blockNumber+1))
                  painter.drawPixmap(4,top+2,mErrorPixmap);
-//             painter.drawEllipse(QRectF(5,top+2,10,10));
          }
 
          block = block.next();
@@ -178,6 +178,9 @@ void SCsCodeEditor::keyPressEvent(QKeyEvent *e)
         mCompleter->popup()->update();
         return;
     }
+
+	if(e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_R)
+		checkGrammar();
 
     if (mCompleter->popup()->isVisible())
     {
@@ -254,7 +257,7 @@ void SCsCodeEditor::updateAnalyzer()
     QString currentWord = tc.selectedText();
 
     mAnalyzer->ignoreUpdate(currentWord);
-    mAnalyzer->update(toPlainText(), completerModel);
+    //mAnalyzer->update(toPlainText(), completerModel);
 }
 
 SCsCodeEditorFindWidget* SCsCodeEditor::getFindWidget()
@@ -270,4 +273,16 @@ bool SCsCodeEditor::isLineWithError(int line)
 void SCsCodeEditor::setErrorsLines(QVector<int> &lines)
 {
     mErrorLines = lines;
+}
+
+
+
+void SCsCodeEditor::checkGrammar()
+{
+	SCsParser psr;
+	QVector<int> errorLines;
+
+	errorLines = psr.getErrorLines(document()->toPlainText());
+	setErrorsLines( errorLines );
+	update();
 }
