@@ -27,7 +27,11 @@ along with OSTIS.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QStandardItemModel>
 #include <QFileSystemWatcher>
+
 #include <limits>
+
+#include "scsparserwrapper.h"
+
 
 const QRegExp SCsCodeAnalyzer::msIdentifierExp("([$]?[A-Za-z0-9_.]+)");
 const QRegExp SCsCodeAnalyzer::msIncludeExp("#include\\s+\"([^\"]+)\"");
@@ -206,6 +210,10 @@ void SCsCodeAnalyzer::update(const QString &text, QStandardItemModel *model)
     QSet<QString> newIncludes;
 
     processText(text, &mDocumentEmptyBlocks, &newIncludes, &newIdentifiers);
+
+	SCsParser parser;
+
+	newIdentifiers = parser.getIdentifier(text);
 
     newIdentifiers -= mIgnoreIdentifiers - mDocumentIdentifiers;
 

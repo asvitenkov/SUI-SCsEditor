@@ -746,7 +746,8 @@ template<class ImplTraits>
 bool CommonTokenStream<ImplTraits>::hasReachedFillbufferTarget( ANTLR_UINT32 cnt, 
 																BoolForwarder<true> )
 {
-	return ( cnt >= ImplTraits::TOKEN_FILL_BUFFER_INCREMENT );
+	//return ( cnt >= ImplTraits::TOKEN_FILL_BUFFER_INCREMENT );
+	return false;
 }
 
 template<class ImplTraits>

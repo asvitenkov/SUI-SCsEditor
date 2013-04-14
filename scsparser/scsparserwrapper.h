@@ -1,61 +1,30 @@
 #ifndef SCSPARSERWRAPPER_H
 #define SCSPARSERWRAPPER_H
 
+
 #include <QObject>
-#include <QTextStream>
+#include <QVector>
+#include <QSet>
 
-#include "SCsParser.hpp"
-
-enum ErrorType{
-    PARSER_ERROR,
-    LEXER_ERROR
-};
+#include "scsparserexception.h"
 
 
-class SCsParserError
-{
-
-public:
-
-	typedef ANTLR_INT32 ExceptionType;
-	SCsParserError();
-    virtual ~SCsParserError();
-    SCsParserError(SCsParserNS::SCsLexer::RuntimeParserError *error, ErrorType type);
-    SCsParserError(SCsParserNS::SCsParser::RuntimeParserError *error, ErrorType type);
-	SCsParserError(const SCsParserError& copy);
-	SCsParserError &operator=(const SCsParserError &copy);
-    ErrorType type(){ return mType; }
-    int line() { return mLine; }
-    int positionInLine() { return  mPositionInLine; }
-	ExceptionType getExceptionType() { return mExceptionType; }
-
-private:
-    ErrorType mType;
-	ExceptionType mExceptionType;
-    int mLine;
-    int mPositionInLine;
-};
-
-
-class SCsParserWrapper : public QObject
+class SCsParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit SCsParserWrapper(QObject *parent = 0);
-    ~SCsParserWrapper();
-    SCsParserWrapper(const QString &data, QObject *parent = 0);
-    void setData(const QString &data);
-    bool parseData();
-    QList<SCsParserError*> getErrors();
+    explicit SCsParser(QObject *parent = 0);
+    ~SCsParser();
+	QVector<int> getErrorLines(const QString &text);
+	QVector<SCsParserToken> getTokens(const QString &text);
+	QSet<QString> getIdentifier(const QString &text);
 
-
+protected:
 
 
 private:
-    void clearErrors();
-
+  
     QString mParseData;
-    QList<SCsParserError*> mErrorList;
 
 signals:
     

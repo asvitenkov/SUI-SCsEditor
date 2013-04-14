@@ -257,7 +257,7 @@ void SCsCodeEditor::updateAnalyzer()
     QString currentWord = tc.selectedText();
 
     mAnalyzer->ignoreUpdate(currentWord);
-    //mAnalyzer->update(toPlainText(), completerModel);
+    mAnalyzer->update(toPlainText(), completerModel);
 }
 
 SCsCodeEditorFindWidget* SCsCodeEditor::getFindWidget()
@@ -281,7 +281,6 @@ void SCsCodeEditor::checkGrammar()
 {
 	SCsParser psr;
 	QVector<int> errorLines;
-
 	errorLines = psr.getErrorLines(document()->toPlainText());
 	setErrorsLines( errorLines );
 	update();

@@ -84,6 +84,11 @@ public:
 	SCsParserToken& operator=(const SCsParserToken& copy);
 	virtual ~SCsParserToken();
 
+	inline SCsParserToken::Tokens tokenType(){ return mToken; }
+	inline QString tokenText(){ return mTokenText; }
+	inline int line(){ return mLine; }
+	inline int positionInLine(){ return mPositionInLine; }
+
 private:
 	QString mTokenText;
 	int mLine;
