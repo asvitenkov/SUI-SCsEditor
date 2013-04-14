@@ -7,6 +7,7 @@ options
 
 @lexer::includes
 {
+  #include "scsparserexception.h"
   #include <list>
 }
 
@@ -37,12 +38,14 @@ using namespace SCsAST;
   }       
 //after terminal symbol
 #define ATS(ptr,methodName) \
-  if(ptr!=NULL) pName->methodName(QString::fromStdString(ptr->getText())); \
+  if(ptr!=NULL && mHasException==false) {pName->methodName(QString::fromStdString(ptr->getText()));} \
+  else {pName->methodName##Error();} \
   CHECK_EXCEPTION \
   IFNRR 
 // after non terminal symbol
 #define ANTS(ptr,methodName) \
-  if(ptr!=NULL) pName->methodName(ptr); \
+  if(ptr!=NULL && mHasException==false) {pName->methodName(ptr);} \
+  else {pName->methodName##Error();} \
   IFNRR 
 #define CODE_AFTER_RULE CHECK_EXCEPTION
 
@@ -50,6 +53,7 @@ using namespace SCsAST;
 
 @lexer::namespace { SCsParserNS }
 @parser::namespace{ SCsParserNS }
+
 
 
 @lexer::traits 
@@ -69,6 +73,8 @@ using namespace SCsAST;
 }
 
 
+
+
 syntax 
   //rule: ( sentence_sentsep )*
 	@init
@@ -82,7 +88,23 @@ syntax
 		}
 	@after{ CODE_AFTER_RULE }
 : 
-      ( {BNTS(a)} a = sentence_sentsep  { ANTS(a,addSentence) IFNR retPtr->addSentence($a.retPtr); }  )*  EOF//attention
+      ( {BNTS(a)} a = sentence_sentsep  
+						      { 
+						        if(a!=NULL)
+						              {
+						                retPtr->addSentence(a); 
+						                if( a->setSeparatorCheckError() == true  || mNeedRecover )
+						                {
+						                  //mNeedRecover = false;
+						                  this->recover();
+						                }
+						                else
+						                {
+						                  //this->recover();
+						                }
+						              }
+						      }  
+      )*  EOF//attention
 ;
  
 sentence_sentsep returns[SentenceWithSeparator* retPtr]
@@ -397,7 +419,7 @@ idtfWithInt returns [IdentifierWithInternalAST* retPtr]
   
 
 CONTENT
-	: '[' ( options {greedy=false;} : . )* ']'	
+	: '[' (~']')* ']'	
 	;
   
 ELEMTYPE
