@@ -40,8 +40,8 @@ SCsHighlightingRulesPool::SCsHighlightingRulesPool()
     QTextCharFormat commaFormat;
     QBrush brush = QBrush(Qt::black);
     commaFormat.setForeground(brush);
-    QRegExp pattern = QRegExp("[\\.,;:=]");
-    mRules.append(new SCsStdHighlightingRule(pattern, commaFormat));
+    QRegExp pattern;// = QRegExp("[\\.,;:=]");
+    //mRules.append(new SCsStdHighlightingRule(pattern, commaFormat));
 
 	QTextCharFormat format;
 	// simply idtf
@@ -136,21 +136,21 @@ void SCsHighlightingRulesPool::initScArcRules()
     arcs          << "<>"
                   << ">"
                   << "<"
-                  << "..>"
-                  << "<.."
+                  << "\\.\\.>"
+                  << "<\\.\\."
                   << "->"
                   << "<-"
                   << "<=>"
                   << "=>"
                   << "<="
-                  << "-|>"
-                  << "<|-"
+                  << "-\\|>"
+                  << "<\\|-"
                   << "-/>"
                   << "</-"
                   << "~>"
                   << "<~"
-                  << "~|>"
-                  << "<|~"
+                  << "~\\|>"
+                  << "<\\|~"
                   << "~/>"
                   << "</~"
                   << "=" ;
