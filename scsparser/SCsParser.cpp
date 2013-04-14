@@ -146,7 +146,7 @@ SCsParser::reset()
  */
 SCsParser::~SCsParser()
  {
-	std::list<SCsParserNS::SCsParser::RuntimeParserError*>::iterator it;
+	std::list<SCsParserException*>::iterator it;
 	for(it=mErrorsArray.begin(); it!=mErrorsArray.end(); ++it)
 		delete *it;
 	mErrorsArray.clear();

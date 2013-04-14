@@ -283,29 +283,28 @@ public:
         //fprintf(stderr,"parser line:%d pos:%d\n",ex->get_line(),ex->get_charPositionInLine());
         mNeedRecover = true;
 		mHasException = true;
-        mErrorsArray.push_back(new SCsParserNS::SCsParser::RuntimeParserError(tokenNames, ex) );
-		ANTLR_UINT32 type = ex->getType();
+        mErrorsArray.push_back(new SCsParserException(SCsParserException::PARSER,ex->get_line(),ex->get_charPositionInLine(),(int)ex->getType()));
     }
-    std::list<SCsParserNS::SCsParser::RuntimeParserError*> getParserErrors(){ return mErrorsArray; }
+	std::list<SCsParserException*> getParserErrors(){ return mErrorsArray; }
 private:
-    std::list<SCsParserNS::SCsParser::RuntimeParserError*> mErrorsArray;
+	std::list<SCsParserException*> mErrorsArray;
     bool mNeedRecover;
 	bool mHasException;
 	bool mLastExceptionCheked;
 	AST* mCurrentNode;
-void recover() 
-  {    
-      int token = this->LA(1);
-       while( token != EOF_TOKEN )
-       {
-           this->get_rec()->getCurrentInputSymbol(this->get_istream());
-           this->get_istream()->consume();
-           if(token == SENTSEP)
-               break;
-           token = this->LA(1);
-       }
-       mNeedRecover = false;
-   }
+	void recover() 
+	{    
+		int token = this->LA(1);
+		while( token != EOF_TOKEN )
+		{
+			this->get_rec()->getCurrentInputSymbol(this->get_istream());
+			this->get_istream()->consume();
+			if(token == SENTSEP)
+				break;
+			token = this->LA(1);
+		}
+		mNeedRecover = false;
+	}
 	bool hasException()
 	{
 		bool bRes = SCsParserImplTraits::BaseParserType::hasException();

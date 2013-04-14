@@ -64,6 +64,7 @@ has the callable functions (rules) shown below,
 
 
   #include <list>
+#include "scsparserexception.h"
 
 
 
@@ -264,11 +265,11 @@ public:
 	void displayRecognitionError( ANTLR_UINT8** tokenNames, ExceptionBaseType* ex)
 	{
 	    //fprintf(stderr,"lexer line:%d pos:%d\n",ex->get_line(),ex->get_charPositionInLine());
-	    mErrorsArray.push_back(new SCsLexer::RuntimeParserError(tokenNames, ex));
+	    mErrorsArray.push_back(new SCsParserException(SCsParserException::LEXER,ex->get_line(),ex->get_charPositionInLine(),(int)ex->getType()));
 	}
-	std::list<RuntimeParserError*> getLexerError(){ return mErrorsArray; }
+	std::list<SCsParserException*> getLexerError(){ return mErrorsArray; }
 	private:
-	std::list<RuntimeParserError*> mErrorsArray;
+	std::list<SCsParserException*> mErrorsArray;
 };
 
 // Function protoypes for the constructor functions that external translation units
